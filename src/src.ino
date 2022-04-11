@@ -80,9 +80,18 @@ void setup(){
   pinMode(38, INPUT_PULLUP); // third button
   pinMode(34, INPUT_PULLUP); // fourth button
 
+  pinMode(14, OUTPUT);
+
+  ledcSetup(0, 200, 12);//12 bits of PWM precision
+  ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
+  ledcAttachPin(14, 0);
+
   setup_clock();
 }
 
 void loop(){
-  loop_clock();
+  char* hm = loop_clock();
+  if (strcmp(hm, "10:57pm") == 0) {
+    ledcWriteTone(0, 220);
+  }
 }   

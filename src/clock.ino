@@ -49,7 +49,7 @@ void setup_clock() {   // this is called when transitioning to clock state
   blink_timer = millis(); // we also need to reset the blink timer so no drifting
 }
 
-void loop_clock() {   // this is called when we remain in the clock state
+char* loop_clock() {   // this is called when we remain in the clock state
   int style_input = button45.update();
   int power_input = button39.update();
   imu.readAccelData(imu.accelCount);
@@ -169,6 +169,8 @@ void loop_clock() {   // this is called when we remain in the clock state
     print_time();
     blink_timer = millis();
   }
+
+  return hm;
 }
 
 int get_time(char* time, int pos) {
