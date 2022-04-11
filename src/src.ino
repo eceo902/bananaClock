@@ -3,6 +3,7 @@
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h> //Used in support of TFT Display
 #include <string.h>  //used for some string handling and processing.
+#include <helper_classes.h>
 
 
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
