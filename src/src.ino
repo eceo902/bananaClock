@@ -90,8 +90,8 @@ void setup(){
 }
 
 void loop(){
-  char* hm = loop_clock();
-  if (strcmp(hm, "13:00") == 0) {
+  char* time = loop_clock();
+  if (strcmp(time, "13:00") == 0) {
     ledcWriteTone(0, 220);
   }
 }   
