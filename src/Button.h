@@ -1,9 +1,6 @@
-#ifndef helper_classes_h
-#define helper_classes_h
-#include <Arduino.h>
-
-//enum for button states
-enum button_state {S0, S1, S2, S3, S4};
+#ifndef Button_h
+#define Button_h
+#include "Arduino.h"
 
 class Button {
 	public:
@@ -14,7 +11,7 @@ class Button {
     uint8_t pin;
     uint8_t flag;
     uint8_t button_pressed;
-    button_state state; // This is public for the sake of convenience
+    uint8_t state; // This is public for the sake of convenience
     Button(int p);
     void read();
     int update();

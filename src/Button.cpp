@@ -1,12 +1,10 @@
-#include <Arduino.h>
-#include <helper_classes.h>
+#include "Arduino.h"
+#include "Button.h"
 
 //enum for button states
-enum button_state {S0, S1, S2, S3, S4};
-
 Button::Button(int p) {
   flag = 0;  
-  state = S0;
+  state = 0;
   pin = p;
   S2_start_time = millis(); //init
   button_change_time = millis(); //init
@@ -21,38 +19,38 @@ void Button::read() {
 int Button::update() {
   read();
   flag = 0;
-  if (state==S0) {
+  if (state==0) {
     if (button_pressed) {
-      state = S1;
+      state = 1;
       button_change_time = millis();
     }
   } 
-  else if (state==S1) {
+  else if (state==1) {
     if (millis() - button_change_time > debounce_duration) {
-      state = S2;
+      state = 2;
       S2_start_time = millis();
     }
     else if (!button_pressed) {
-      state = S0;
+      state = 0;
       button_change_time = millis();
     }
   } 
-  else if (state==S2) {
+  else if (state==2) {
     if (millis() - S2_start_time > long_press_duration) {
-      state = S3;
+      state = 3;
     }
     else if (!button_pressed) {
-      state = S4;
+      state = 4;
       button_change_time = millis();
     }
   } 
-  else if (state==S3) {
+  else if (state==3) {
     if (!button_pressed) {
-      state = S4;
+      state = 4;
       button_change_time = millis();
     }
   } 
-  else if (state==S4) {      	
+  else if (state==4) {      	
     if (millis() - button_change_time > debounce_duration) {
       if (millis() - S2_start_time > long_press_duration) {
         flag = 2;
@@ -60,18 +58,17 @@ int Button::update() {
       else {
         flag = 1;
       }
-      state = S0;
+      state = 0;
     }
     else if (button_pressed) {
       if (millis() - S2_start_time > long_press_duration) {
-        state = S3;
+        state = 3;
       }
       else {
-        state = S2;
+        state = 2;
       }
       button_change_time = millis();
     }
   }
   return flag;
 }
-};
