@@ -5,8 +5,8 @@ const uint8_t ALWAYS_ON = 2;
 const uint8_t HOUR_MINUTE = 0;
 const uint8_t HOUR_MINUTE_SECOND = 1;
 
-char hm[8];
-char hms[11];
+char hm[6];
+char hms[9];
 
 
 uint8_t power_state;
@@ -27,20 +27,7 @@ void setup_clock() {   // this is called when transitioning to clock state
   do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
   strncpy(hm, &response_buffer[11], 5);
   strncpy(hms, &response_buffer[11], 8);
-  if (get_time(hm, 0) > 12) {
-    hm[5] = 'p';
-    hm[6] = 'm';
-    hms[8] = 'p';
-    hms[9] = 'm';
-  }
-  else {
-    hm[5] = 'a';
-    hm[6] = 'm';
-    hms[8] = 'a';
-    hms[9] = 'm';
-  }
-  normalize_hour(hm);
-  normalize_hour(hms);
+
   Serial.println(response_buffer);
   Serial.println(hm);
   Serial.println(hms);
@@ -110,20 +97,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
     do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
     strncpy(hm, &response_buffer[11], 5);
     strncpy(hms, &response_buffer[11], 8);
-    if (get_time(hm, 0) > 12) {
-      hm[5] = 'p';
-      hm[6] = 'm';
-      hms[8] = 'p';
-      hms[9] = 'm';
-    }
-    else {
-      hm[5] = 'a';
-      hm[6] = 'm';
-      hms[8] = 'a';
-      hms[9] = 'm';
-    }
-    normalize_hour(hm); 
-    normalize_hour(hms);
+
     Serial.println(response_buffer);
     Serial.println(hm);
     Serial.println(hms);
@@ -152,14 +126,6 @@ char* loop_clock() {   // this is called when we remain in the clock state
     }
     if (hour >= 13) {
       hour = 1;
-      if (hm[6] == 'a') {
-        hm[5] = 'p';
-        hms[8] = 'p';
-      }
-      else {
-        hm[5] = 'a';
-        hms[8] = 'a';
-      }
     }
     time_to_string(hms, hour, 0);
     time_to_string(hms, minute, 3);
@@ -184,34 +150,16 @@ void time_to_string(char* time, int num, int pos) {
   time[pos + 1] = ones_digit + '0';
 }
 
-void normalize_hour(char* time) {
-  int num = get_time(time, 0);
-  if (num > 12) {  // Convert to American time
-    num -= 12;
-  }
-  time_to_string(time, num, 0);
-}
-
 void print_time() {
   if (power_state == ALWAYS_ON || power_state == ON) {
-    tft.setCursor(0, 0, 1);
+    tft.setCursor(8, 40, 1);
     if (style_state == HOUR_MINUTE) {
-      tft.setTextSize(3.5);
-      if (hm[0] == '0') {
-        hm[0] = ' ';
-        tft.println(hm);
-        hm[0] = '0';
-      }
-      else tft.println(hm);
+      tft.setTextSize(5);
+      tft.println(hm);
     }
     else{
-      tft.setTextSize(2.5);
-      if (hms[0] == '0') {
-        hms[0] = ' ';
-        tft.println(hms);
-        hms[0] = '0';
-      }
-      else tft.println(hms);
+      tft.setTextSize(3);
+      tft.println(hms);
     }        
   }
 } 
