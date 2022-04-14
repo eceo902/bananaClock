@@ -31,7 +31,7 @@ Button button39(39);
 Button button38(38);
 Button button34(34);
 
-boolean goneOff;
+boolean hasRung;
 
 
 void setup(){
@@ -90,14 +90,14 @@ void setup(){
 
   setup_clock();
 
-  goneOff = false;
+  hasRung = false;
 }
 
 void loop(){
   char* time = loop_clock();
-  if (strcmp(time, "23:23") == 0 && !goneOff) {
+  if (strcmp(time, "23:23") == 0 && !hasRung) {
     ledcWriteTone(0, 220);
-    goneOff = true;
+    hasRung = true;
   }
   if (button39.update() != 0) {
     ledcWriteTone(0, 0);
