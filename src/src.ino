@@ -31,6 +31,8 @@ Button button39(39);
 Button button38(38);
 Button button34(34);
 
+boolean hasRung;
+
 
 void setup(){
   tft.init();  //init screen
@@ -87,11 +89,17 @@ void setup(){
   ledcAttachPin(14, 0);
 
   setup_clock();
+
+  hasRung = false;
 }
 
 void loop(){
   char* time = loop_clock();
-  if (strcmp(time, "13:00") == 0) {
+  if (strcmp(time, "23:23") == 0 && !hasRung) {
     ledcWriteTone(0, 220);
+    hasRung = true;
+  }
+  if (button39.update() != 0) {
+    ledcWriteTone(0, 0);
   }
 }   
