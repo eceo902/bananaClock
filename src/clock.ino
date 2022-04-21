@@ -21,7 +21,6 @@ unsigned long query_timer;
 unsigned long power_timer;
 unsigned long blink_timer;
 
-
 void setup_clock() {   // this is called when transitioning to clock state
   power_state = ALWAYS_ON;
   style_state = HOUR_MINUTE;
