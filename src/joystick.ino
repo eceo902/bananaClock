@@ -1,11 +1,3 @@
-#include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
-#include <SPI.h> //Used in support of TFT Display
-#include <string.h>  //used for some string handling and processing.
-#include <mpu6050_esp32.h>
-#include "Button.h"
-
-TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
-
 #define BACKGROUND TFT_BLACK
 #define BALL_COLOR TFT_BLUE
 
@@ -36,11 +28,6 @@ const int aOffset = 13;
 const int zOffset = 18;
 
 
-char letters[100] = {0};
-
-Button button45(45);
-Button button39(39);
-Button button38(38);
 int i;
 
 
@@ -77,32 +64,24 @@ void moveBall() {
 
 
 
-void setup() {
-  analogReadResolution(12);       // initialize the analog resolution
-
-  tft.init();
+void setup_joystick() {
   tft.setRotation(2);
   tft.setTextSize(1);
   tft.fillScreen(BACKGROUND);
-  delay(100);
-  Serial.begin(115200); //for debugging if needed.
 
   i = 0;
+  tft.fillCircle(position.x, position.y, RADIUS, BALL_COLOR); //draw new ball location
+  
   tft.setCursor(qOffset, vertOffset, 1);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.println("Q W E R T Y U I O P\n");
   tft.println("  A S D F G H J K L\n");
   tft.println("   Z X C V B N M");
-
-
-  pinMode(45, INPUT_PULLUP); // first button
-  pinMode(39, INPUT_PULLUP);
-  pinMode(38, INPUT_PULLUP);
   
   primary_timer = millis();
 }
 
-void loop() {
+int loop_joystick(char* letters) {
   int upDown = analogRead(1);
   Serial.println(upDown);
   int leftRight = analogRead(2);
@@ -159,9 +138,6 @@ void loop() {
   int prevY = position.y;
   step(upDown, leftRight);
   if (position.x != prevX || position.y != prevY) {  
-    //draw circle in previous location of ball in color background (redraws minimal num of pixels, therefore is quick!)
-    tft.fillCircle(prevX, prevY, RADIUS, BACKGROUND);
-
     i += 1;
     // only redraw keyboard and word every 5 cursor moves
     if (i == 5) {
@@ -176,10 +152,18 @@ void loop() {
 
       i = 0;
     }
+    
+    //draw circle in previous location of ball in color background (redraws minimal num of pixels, therefore is quick!)
+    tft.fillCircle(prevX, prevY, RADIUS, BACKGROUND);
     tft.fillCircle(position.x, position.y, RADIUS, BALL_COLOR); //draw new ball location
   }
 
   while (millis() - primary_timer < DT); //wait for primary timer to increment
   primary_timer = millis();
   
+  int submitInput = button38.update();
+  if (submitInput != 0) {
+    return 1;
+  }
+  return 0;
 }

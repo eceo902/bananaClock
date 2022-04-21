@@ -22,6 +22,10 @@ const uint16_t OUT_BUFFER_SIZE = 1000; //size of buffer to hold HTTP response
 char request_buffer[IN_BUFFER_SIZE]; //char array buffer to hold HTTP request
 char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 
+char letters[100];  // char array for keyboard
+
+int masterState;
+
 
 char network[] = "MIT";
 char password[] = "";
@@ -35,10 +39,9 @@ boolean hasRung;
 
 
 void setup(){
-  tft.init();  //init screen
-  tft.setRotation(1); //adjust rotation
-  tft.fillScreen(TFT_BLACK); //fill background
-  tft.setTextColor(TFT_GREEN, TFT_BLACK); //set color of font to green foreground, black background
+  analogReadResolution(12);       // initialize the analog resolution
+
+  tft.init();
 
   Serial.begin(115200); //begin serial comms
   delay(50); //pause to make sure comms get set up
@@ -83,10 +86,11 @@ void setup(){
   pinMode(34, INPUT_PULLUP); // fourth button
 
   pinMode(14, OUTPUT);
-
   ledcSetup(0, 200, 12);//12 bits of PWM precision
   ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
   ledcAttachPin(14, 0);
+
+  masterState = 0;
 
   setup_clock();
 
@@ -94,12 +98,47 @@ void setup(){
 }
 
 void loop(){
-  char* time = loop_clock();
-  if (strcmp(time, "23:23") == 0 && !hasRung) {
-    ledcWriteTone(0, 220);
-    hasRung = true;
-  }
-  if (button39.update() != 0) {
-    ledcWriteTone(0, 0);
+  switch(masterState) {
+    case 0: {
+      char* time = loop_clock();
+      if (strcmp(time, "20:53") == 0 && !hasRung) {
+        ledcWriteTone(0, 220);
+        hasRung = true;
+      }
+      if (button39.update() != 0) {
+        ledcWriteTone(0, 0);
+      }
+
+      if (button34.update() != 0) {
+        masterState = 1;
+        setup_joystick();
+      }
+      break;
+    }
+    case 1: {
+      bool hasSubmitted = loop_joystick(letters);
+      if (hasSubmitted) {
+        char body[100]; //for body
+        sprintf(body, "username=%s", letters);
+        sprintf(request_buffer, "POST http://608dev-2.net/sandbox/sc/team41/login/esp_login.py HTTP/1.1\r\n");
+        strcat(request_buffer, "Host: 608dev-2.net\r\n");
+        strcat(request_buffer, "Content-Type: application/x-www-form-urlencoded\r\n");
+        sprintf(request_buffer + strlen(request_buffer), "Content-Length: %d\r\n", strlen(body)); //append string formatted to end of request buffer
+        strcat(request_buffer, "\r\n"); //new line from header to body
+        strcat(request_buffer, body); //body
+        strcat(request_buffer, "\r\n"); //new line
+        Serial.println(request_buffer);
+        do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+        Serial.println(response_buffer); //viewable in Serial Terminal
+        tft.fillScreen(TFT_BLACK);
+        tft.setCursor(0, 0, 1);
+        tft.println(response_buffer);
+        memset(letters, 0, sizeof(letters));
+      }
+      if (button34.update() != 0) {
+        masterState = 0;
+        setup_clock();
+      }
+    }
   }
 }   
