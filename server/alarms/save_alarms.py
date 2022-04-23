@@ -1,24 +1,23 @@
 import sqlite3
 import datetime
 
-alarm_db = '/var/jail/home/team41/alarms/alarmtimes.db' 
+alarm_db = "/var/jail/home/team41/alarms/alarmtimes.db" 
 
 def request_handler(request):
     if request["method"]=="POST":
         #parse the body of the incoming POST
         try:
             username = request['form']['user']
-            alarm_time = request['form']['alarm_time']
-            alarm_set = request['form']['set_alarm']
+            time = request['form']['alarm_time']
             alarm_music = request['form']['music']
         except:
             return "Error with username, alarm time, set state, or music"   
         
         with sqlite3.connect(alarm_db) as c:
             c.cursor()  # move cursor into database (allows us to execute commands)
-            c.execute("""CREATE TABLE IF NOT EXISTS alarm_data (user text, alarm_time text, set_alarm text, music text);""")
+            c.execute("""CREATE TABLE IF NOT EXISTS alarm_data (user text, alarm_time text, music int);""")
             # some other query(ies) about inserting data
-            c.execute('''INSERT into alarm_data VALUES (?,?,?,?);''',(username, alarm_time, alarm_set, alarm_music))
+            c.execute('''INSERT into alarm_data VALUES (?,?,?);''',(username, time, alarm_music))
 
         return "Data POSTED successfully"
     else:

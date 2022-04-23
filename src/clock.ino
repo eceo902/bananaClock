@@ -22,11 +22,16 @@ unsigned long power_timer;
 unsigned long blink_timer;
 
 void setup_clock() {   // this is called when transitioning to clock state
+  tft.setRotation(1); //adjust rotation
+  tft.fillScreen(TFT_BLACK); //fill background
+  tft.setTextColor(TFT_GREEN, TFT_BLACK); //set color of font to green foreground, black background
+
   power_state = ALWAYS_ON;
   style_state = HOUR_MINUTE;
   military_state = STANDARD;
 
   calibrate_time();
+
 
   query_timer = millis();
   blink_timer = millis(); // we also need to reset the blink timer so no drifting
