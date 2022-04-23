@@ -9,16 +9,15 @@ def request_handler(request):
         try:
             username = request['form']['user']
             time = request['form']['alarm_time']
-            set = request['form']['set_alarm']
             alarm_music = request['form']['music']
         except:
             return "Error with username, alarm time, set state, or music"   
         
         with sqlite3.connect(alarm_db) as c:
             c.cursor()  # move cursor into database (allows us to execute commands)
-            c.execute("""CREATE TABLE IF NOT EXISTS alarm_data (user text, alarm_time float, set_alarm text, music text);""")
+            c.execute("""CREATE TABLE IF NOT EXISTS alarm_data (user text, alarm_time text, music int);""")
             # some other query(ies) about inserting data
-            c.execute('''INSERT into alarm_data VALUES (?,?,?,?);''',(username, time, set, alarm_music))
+            c.execute('''INSERT into alarm_data VALUES (?,?,?);''',(username, time, alarm_music))
 
         return "Data POSTED successfully"
     else:
