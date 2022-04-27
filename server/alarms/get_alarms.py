@@ -17,7 +17,10 @@ def request_handler(request):
             
             if not users:
                 return "User does not exist or has no alarms set"
+
+            times = [i[1] for i in users]
+            music = [j[1] for j in users]
             
-        return users
+        return {'alarm_time': times, 'music': music}
     else:
       return "invalid HTTP method for this url."
