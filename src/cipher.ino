@@ -8,60 +8,67 @@
 
 
 //TFT_eSPI tft = TFT_eSPI();
-const int SCREEN_HEIGHT = 160;
-const int SCREEN_WIDTH = 128;
-const int BUTTON_PIN = 45;
-const int LOOP_PERIOD = 40;
+// const int SCREEN_HEIGHT = 160;
+// const int SCREEN_WIDTH = 128;
+// const int BUTTON_PIN = 45;
+// const int LOOP_PERIOD = 40;
 
-char network[] = "MIT"; // SSID for 6.08 Lab
-char password[] = "";	// Password for 6.08 Lab
-// Some constants and some resources:
-const int RESPONSE_TIMEOUT = 6000;	   // ms to wait for response from host
-const uint16_t OUT_BUFFER_SIZE = 1000; // size of buffer to hold HTTP response
-char response[OUT_BUFFER_SIZE];		   // char array buffer to hold HTTP request
+// char network[] = "MIT"; // SSID for 6.08 Lab
+// char password[] = "";	// Password for 6.08 Lab
+// // Some constants and some resources:
+// const int RESPONSE_TIMEOUT = 6000;	   // ms to wait for response from host
+// const uint16_t OUT_BUFFER_SIZE = 1000; // size of buffer to hold HTTP response
 
 char quote[200];
 int quoteLength;
 char currquote[200];
 int alphabet[27] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
-int inputIndex;
+int cipherinputIndex;                                                                                                                                                                                                                                                                         ;
 int shift;
 const int keyLength = 6;
 int key[keyLength];
 
-const int BUTTON_TIMEOUT = 1000; // button timeout in milliseconds
-const float ZOOM = 1;
-const uint8_t BUTTON1 = 45; // pin connected to button
-const uint8_t BUTTON2 = 39; // pin connected to button
-const uint8_t BUTTON3 = 34; // pin connected to button
-Button button45(45);
-Button button39(39);
-Button button38(38);
-Button button34(34);
+// const int BUTTON_TIMEOUT = 1000; // button timeout in milliseconds
+// const float ZOOM = 1;
+// const uint8_t BUTTON1 = 45; // pin connected to button
+// const uint8_t BUTTON2 = 39; // pin connected to button
+// const uint8_t BUTTON3 = 34; // pin connected to button
+// Button button45(45);
+// Button button39(39);
+// Button button38(38);
+// Button button34(34);
 // button states
-const uint8_t UP = 0;
-const uint8_t BUTTONPRESSED = 1;
-int button1_state = 0;
-int button2_state = 0;
-int button3_state = 0;
-boolean button1_click = false;
-boolean button2_click = false;
-boolean button3_click = false;
-boolean button4_click = false;
+// const uint8_t UP = 0;
+// const uint8_t BUTTONPRESSED = 1;
+// int button1_state = 0;
+// int button2_state = 0;
+// int button3_state = 0;
+boolean cipherbutton1_click = false;
+boolean cipherbutton2_click = false;
+boolean cipherbutton3_click = false;
+boolean cipherbutton4_click = false;
 
 // interface states
-const uint8_t OFF = 0;
-const uint8_t START = 1;
-const uint8_t SOLVING = 2;
-int state = 0;
+const uint8_t CIPHEROFF = 0;
+const uint8_t CIPHERSTART = 1;
+const uint8_t CIPHERSOLVING = 2;
+int cipher_state = 0;
 
 const uint8_t EASYCIPHER = 0;
 const uint8_t NORMALCIPHER = 1;
 const uint8_t INSANECIPHER = 2;
-static const char *enum_str[] =
-	{"EASYCIPHER", "NORMALCIPHER", "INSANECIPHER"};
+// static const char *enum_str[] =
+// 	{"EASYCIPHER", "NORMALCIPHER", "INSANECIPHER"};
 int cipher_difficulty = 0;
 
+void cipher_setup(){
+  tft.init();								// init screen
+	tft.setRotation(2);						// adjust rotation
+	tft.setTextSize(1);						// default font size
+	tft.fillScreen(TFT_BLACK);				// fill background
+	tft.setTextColor(TFT_GREEN, TFT_BLACK); // set color of font to green foreground, black background
+	tft.setCursor(0, 0, 1);
+}
 // void setup()
 // {
 
@@ -120,29 +127,29 @@ int cipher_difficulty = 0;
 int cipher_loop()
 {
 
-	button1_click = button45.update() != 0;
-	button2_click = button39.update() != 0;
-	button3_click = button34.update() != 0;
-	button4_click = button38.update() != 0;
+	cipherbutton1_click = button45.update() != 0;
+	cipherbutton2_click = button39.update() != 0;
+	cipherbutton3_click = button34.update() != 0;
+	cipherbutton4_click = button38.update() != 0;
 
 	char output[1000];
-	tft.setCursor(0, 0, 2);
+	tft.setCursor(0, 0, 1);
 	int mode = -1;
-	switch (state)
+	switch (cipher_state)
 	{
-	case (OFF):
+	case (CIPHEROFF):
 		sprintf(output, "difficulty level %d                                                                                                                                                                                                                                                                    ", cipher_difficulty);
 		tft.println(output);
-		if (button3_click)
+		if (cipherbutton3_click)
 		{
-			state = START;
+			cipher_state = CIPHERSTART;
 		}
-		if (button1_click)
+		if (cipherbutton1_click)
 		{
 			updateCipherDifficulty();
 		}
 		break;
-	case (START):
+	case (CIPHERSTART):
 	{
 		quoteLength = get_quote(quote);
 		for (int i = 0; i <= quoteLength; i++)
@@ -218,22 +225,22 @@ int cipher_loop()
 		Serial.println();
 		sprintf(output, currquote);
 		Serial.println(currquote);
-		inputIndex = 0;
+		cipherinputIndex = 0;
 		tft.println(output);
-		state = SOLVING;
+		cipher_state = CIPHERSOLVING;
 		break;
 	}
-	case (SOLVING):
+	case (CIPHERSOLVING):
 	{
-		if (button1_click)
+		if (cipherbutton1_click)
 		{
-			inputIndex = (inputIndex - 1 + quoteLength) % quoteLength;
+			cipherinputIndex = (cipherinputIndex - 1 + quoteLength) % quoteLength;
 		}
-		if (button2_click)
+		if (cipherbutton2_click)
 		{
-			inputIndex = (inputIndex + 1) % quoteLength;
+			cipherinputIndex = (cipherinputIndex + 1) % quoteLength;
 		}
-		if (button3_click)
+		if (cipherbutton3_click)
 		{
 			switch (cipher_difficulty)
 			{
@@ -255,7 +262,7 @@ int cipher_loop()
 			}
 			case (NORMALCIPHER):
 			{
-				key[inputIndex % keyLength] = (key[inputIndex % keyLength] + 1) % 26;
+				key[cipherinputIndex % keyLength] = (key[cipherinputIndex % keyLength] + 1) % 26;
 				for (int i = 0; i <= quoteLength; i++)
 				{
 					if (quote[i] < 65 || quote[i] > 90)
@@ -273,7 +280,7 @@ int cipher_loop()
 			}
 			case (INSANECIPHER):
 			{
-				char temp = quote[inputIndex];
+				char temp = quote[cipherinputIndex];
 				if (temp >= 65 && temp <= 90)
 				{
 					alphabet[temp - 65] = (alphabet[temp - 65] + 1) % 26;
@@ -298,7 +305,7 @@ int cipher_loop()
 		char blink[quoteLength];
 		for (int i = 0; i <= quoteLength; i++)
 		{
-			if (i == inputIndex)
+			if (i == cipherinputIndex)
 			{
 				blink[i] = ' ';
 			}
@@ -309,7 +316,7 @@ int cipher_loop()
 		}
 		if (strcmp(quote, currquote) == 0)
 		{
-			state = OFF;
+			cipher_state = CIPHEROFF;
 			sprintf(output, "%s                                                                                                                                                                         ", currquote);
 			tft.println(output);
 			int cipherTimer = millis();
