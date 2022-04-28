@@ -77,11 +77,14 @@ void setup_joystick() {
   tft.println("Q W E R T Y U I O P\n");
   tft.println("  A S D F G H J K L\n");
   tft.println("   Z X C V B N M");
+
+  tft.setCursor(0, 0, 1);
+  tft.println(prompt);
   
   primary_timer = millis();
 }
 
-int loop_joystick(char* letters) {
+int loop_joystick() {
   int upDown = analogRead(1);
   Serial.println(upDown);
   int leftRight = analogRead(2);
@@ -121,16 +124,16 @@ int loop_joystick(char* letters) {
       else if (position.x < (zOffset + 8) + (5 * 12)) letters[strlen(letters)] = 'N';
       else if (position.x < (zOffset + 8) + (6 * 12)) letters[strlen(letters)] = 'M';
     }
-    tft.setCursor(0, 0, 1);
+    tft.setCursor(0, 90, 1);
     tft.println(letters);
   }
 
   int deleteInput = button39.update();
   if (deleteInput != 0 && strlen(letters) > 0) {
     letters[strlen(letters) - 1] = '\0';
-    tft.setCursor(0, 0, 1);
+    tft.setCursor(0, 90, 1);
     tft.println("                                       ");
-    tft.setCursor(0, 0, 1);
+    tft.setCursor(0, 90, 1);
     tft.println(letters);
   }
   
@@ -139,7 +142,7 @@ int loop_joystick(char* letters) {
   step(upDown, leftRight);
   if (position.x != prevX || position.y != prevY) {  
     i += 1;
-    // only redraw keyboard and word every 5 cursor moves
+    // only redraw keyboard, prompt, and word every 5 cursor moves
     if (i == 5) {
       tft.setCursor(qOffset, vertOffset, 1);
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -148,6 +151,9 @@ int loop_joystick(char* letters) {
       tft.println("   Z X C V B N M");
 
       tft.setCursor(0, 0, 1);
+      tft.println(prompt);
+
+      tft.setCursor(0, 90, 1);
       tft.println(letters);
 
       i = 0;
