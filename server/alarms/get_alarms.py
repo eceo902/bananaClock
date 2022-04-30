@@ -16,10 +16,10 @@ def request_handler(request):
             users = [i for i in c.execute('''SELECT * FROM alarm_data WHERE user == ?;''',(username,))]
             
             if not users:
-                return "User does not exist or has no alarms set"
+                return {'alarm_time': [], 'music': []}
 
             times = [i[1] for i in users]
-            music = [j[1] for j in users]
+            music = [j[2] for j in users]
             
         return {'alarm_time': times, 'music': music}
     else:
