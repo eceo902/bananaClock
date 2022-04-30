@@ -22,6 +22,7 @@ const uint16_t OUT_BUFFER_SIZE = 1000; //size of buffer to hold HTTP response
 char request_buffer[IN_BUFFER_SIZE]; //char array buffer to hold HTTP request
 char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 
+char prompt[100];   // char array for asking user for input
 char letters[100];  // char array for keyboard
 
 int masterState;
@@ -94,6 +95,7 @@ void setup(){
 
   setup_clock();
 
+  ledcWriteTone(0, 220);
   hasRung = false;
 }
 
@@ -105,18 +107,19 @@ void loop(){
         ledcWriteTone(0, 220);
         hasRung = true;
       }
-      if (button39.update() != 0) {
+      if (hasRung && button39.update() != 0) {
         ledcWriteTone(0, 0);
       }
 
       if (button34.update() != 0) {
         masterState = 1;
+        strcpy(prompt, "Hi, type to login");
         setup_joystick();
       }
       break;
     }
     case 1: {
-      bool hasSubmitted = loop_joystick(letters);
+      bool hasSubmitted = loop_joystick();
       if (hasSubmitted) {
         char body[100]; //for body
         sprintf(body, "username=%s", letters);
