@@ -91,6 +91,21 @@ void setup(){
   ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
   ledcAttachPin(14, 0);
 
+
+  pinMode(18, OUTPUT);
+  pinMode(19, OUTPUT);
+  pinMode(20, OUTPUT);
+  pinMode(21, OUTPUT);
+
+  // Left side of car
+  digitalWrite(18, HIGH);
+  digitalWrite(19, LOW);
+
+  // Right side of car
+  digitalWrite(20, LOW);
+  digitalWrite(21, HIGH);
+
+
   masterState = 0;
 
   setup_clock();
@@ -112,6 +127,8 @@ void loop(){
       }
 
       if (button34.update() != 0) {
+        digitalWrite(20, HIGH);
+        digitalWrite(21, LOW);
         masterState = 1;
         strcpy(prompt, "Hi, type to login");
         setup_joystick();
@@ -139,6 +156,8 @@ void loop(){
         memset(letters, 0, sizeof(letters));
       }
       if (button34.update() != 0) {
+        digitalWrite(20, LOW);
+        digitalWrite(21, HIGH);
         masterState = 0;
         setup_clock();
       }
