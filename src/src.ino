@@ -22,7 +22,8 @@ const uint16_t OUT_BUFFER_SIZE = 1000; //size of buffer to hold HTTP response
 char request_buffer[IN_BUFFER_SIZE]; //char array buffer to hold HTTP request
 char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
-char letters[100];  // char array for keyboard
+char letters[200];  // char array for keyboard
+char prompt[200];
 int timer;
 
 int masterState;
@@ -127,7 +128,7 @@ void loop(){
       break;
     }
     case 1: {
-      bool hasSubmitted = loop_joystick(letters);
+      bool hasSubmitted = loop_joystick();
       if (hasSubmitted) {
         char body[100]; //for body
         sprintf(body, "username=%s", letters);
