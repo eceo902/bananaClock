@@ -4,6 +4,11 @@
 #include <SPI.h> //Used in support of TFT Display
 #include <string.h>  //used for some string handling and processing.
 #include "Button.h"
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
+
+WiFiClientSecure client; //global WiFiClient Secure object
+WiFiClient client2; //global WiFiClient Secure object
 
 
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -23,9 +28,12 @@ char request_buffer[IN_BUFFER_SIZE]; //char array buffer to hold HTTP request
 char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 
 char letters[100];  // char array for keyboard
+// char username[100];
 
 int masterState;
-
+const int IN_CLOCK = 0;
+const int IN_SETTINGS = 2;
+bool loggedIn;
 
 char network[] = "MIT";
 char password[] = "";
@@ -95,11 +103,27 @@ void setup(){
   setup_clock();
 
   hasRung = false;
+  loggedIn = false; // user has not logged in when program runs
 }
 
 void loop(){
   switch(masterState) {
-    case 0: {
+    case IN_SETTINGS:
+    {
+      int result = handle_settings(); // how to leave settings after running code
+
+      if (result == 1 || result == 2) { // exit settings
+        masterState = IN_CLOCK;
+        tft.fillScreen(TFT_BLACK);
+
+        if (result == 2){
+          loggedIn=false;
+        }
+      }
+      break;
+    }
+    case IN_CLOCK: 
+    {
       char* time = loop_clock();
       if (strcmp(time, "20:53") == 0 && !hasRung) {
         ledcWriteTone(0, 220);
@@ -111,34 +135,54 @@ void loop(){
 
       if (button34.update() != 0) {
         masterState = 1;
-        setup_joystick();
+        // setup_joystick();
       }
+
+      if (button38.update() != 0) {
+        Serial.println("REACHED");
+        goto_settings();
+        if (!loggedIn){ // TODO: change so only go to settings after login
+          Serial.println("REACHED");
+          setup_settings();
+          loggedIn = true;
+        }
+        masterState = IN_SETTINGS;
+      }
+
       break;
     }
     case 1: {
-      bool hasSubmitted = loop_joystick(letters);
-      if (hasSubmitted) {
-        char body[100]; //for body
-        sprintf(body, "username=%s", letters);
-        sprintf(request_buffer, "POST http://608dev-2.net/sandbox/sc/team41/login/esp_login.py HTTP/1.1\r\n");
-        strcat(request_buffer, "Host: 608dev-2.net\r\n");
-        strcat(request_buffer, "Content-Type: application/x-www-form-urlencoded\r\n");
-        sprintf(request_buffer + strlen(request_buffer), "Content-Length: %d\r\n", strlen(body)); //append string formatted to end of request buffer
-        strcat(request_buffer, "\r\n"); //new line from header to body
-        strcat(request_buffer, body); //body
-        strcat(request_buffer, "\r\n"); //new line
-        Serial.println(request_buffer);
-        do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
-        Serial.println(response_buffer); //viewable in Serial Terminal
-        tft.fillScreen(TFT_BLACK);
-        tft.setCursor(0, 0, 1);
-        tft.println(response_buffer);
-        memset(letters, 0, sizeof(letters));
-      }
+        // pull alarms for current user & update that
+
+        // bool hasSubmitted = loop_joystick(letters);
+        // if (hasSubmitted) 
+        // {
+        //   // use test username "ccunning"
+        //   // if hasSubmitted, 34 makes sense for settings, w/in settings have logoff
+        //   // bunch of cases, transition between
+        //   char body[100]; //for body
+        //   sprintf(body, "username=%s", letters);
+        //   sprintf(request_buffer, "POST http://608dev-2.net/sandbox/sc/team41/login/esp_login.py HTTP/1.1\r\n");
+        //   strcat(request_buffer, "Host: 608dev-2.net\r\n");
+        //   strcat(request_buffer, "Content-Type: application/x-www-form-urlencoded\r\n");
+        //   sprintf(request_buffer + strlen(request_buffer), "Content-Length: %d\r\n", strlen(body)); //append string formatted to end of request buffer
+        //   strcat(request_buffer, "\r\n"); //new line from header to body
+        //   strcat(request_buffer, body); //body
+        //   strcat(request_buffer, "\r\n"); //new line
+        //   Serial.println(request_buffer);
+        //   do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+        //   Serial.println(response_buffer); //viewable in Serial Terminal
+        //   tft.fillScreen(TFT_BLACK);
+        //   tft.setCursor(0, 0, 1);
+        //   tft.println(response_buffer);
+        //   sprintf(username, letters);
+        //   memset(letters, 0, sizeof(letters));
+        }
       if (button34.update() != 0) {
         masterState = 0;
         setup_clock();
       }
     }
   }
-}   
+
+   

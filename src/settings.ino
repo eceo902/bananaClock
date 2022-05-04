@@ -1,3 +1,16 @@
+const uint16_t JSON_BODY_SIZE = 4000;
+
+const int BUFFER_SIZE_SETTINGS = 10000;
+
+char request_get[BUFFER_SIZE_SETTINGS]; //char array buffer to hold HTTP request
+char response_get[BUFFER_SIZE_SETTINGS]; //char array buffer to hold HTTP response
+
+char request_post[BUFFER_SIZE_SETTINGS]; //char array buffer to hold HTTP request
+char response_post[BUFFER_SIZE_SETTINGS]; //char array buffer to hold HTTP response
+char json_body[BUFFER_SIZE_SETTINGS];
+
+int offset;
+
 char alarm1Time[8];
 char alarm2Time[8];
 char alarm3Time[8];
@@ -7,9 +20,14 @@ char alarm5Time[8];
 const int maxAlarmNums = 5;
 char *setting_alarms[maxAlarmNums] = {alarm1Time, alarm2Time, alarm3Time, alarm4Time, alarm5Time}; //https://www.javatpoint.com/cpp-array-of-pointers
 
+char temp_username[] = "ccunning"; // temp username for now 
+// user username[] array instead of this
+
 TimeGetter tg;
 
-// {id:time {time:, music}, id: {time:, music:}}
+// send kristine a list of alarms in the POST request as well as music options as a list up to all the valid alarms
+// 1 param in GET request & that's the username, return as JSON
+// lists returned have parallel structure as in POST request
 
 // music_option -1 means alarm is deleted
 
@@ -43,16 +61,144 @@ uint32_t scroll_timer = millis();
 const int scroll_threshold = 150;
 const float angle_threshold = 0.3;
 
-
-void setup_settings(){   // this is called when start setup
-  currNumberAlarms = 0;
+void goto_settings(){
   setting_state = PRINT_ALARMS;
   tft.setTextSize(1.5);
   alarm_state = ADD_HOUR;
 }
 
-void handle_settings()
+void get_alarms_db(){  
+
+  Serial.println("GETTING");
+  
+  request_get[0] = '\0'; //set 0th byte to null
+  memset(response_get, 0, sizeof(response_get)); //set 0th byte to null
+
+  sprintf(request_get, "GET  http://608dev-2.net/sandbox/sc/team41/alarms/get_alarms.py?user=%s HTTP/1.1\r\n", temp_username);
+  strcat(request_get, "Host: 608dev-2.net\r\n\r\n");
+  do_http_request("608dev-2.net", request_get, response_get, BUFFER_SIZE_SETTINGS, RESPONSE_TIMEOUT, true);
+
+  DynamicJsonDocument doc1(500);
+  DeserializationError error = deserializeJson(doc1, response_get);
+
+  if (error) {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.f_str());
+  }
+
+  music_options[0] = {doc1["doc"]["music"]["m0"]};
+  music_options[1] = {doc1["doc"]["music"]["m1"]};
+  music_options[2] = {doc1["doc"]["music"]["m2"]};
+  music_options[3] = {doc1["doc"]["music"]["m3"]};
+  music_options[4] = {doc1["doc"]["music"]["m4"]};
+
+  const char* alarmResult1 = doc1["doc"]["alarm_time"]["a0"];
+  if (music_options[0] != -1){
+    sprintf(setting_alarms[0], alarmResult1);
+    currNumberAlarms++;
+  }
+  else{
+    *setting_alarms[0] = '\0';
+  }
+  
+  const char* alarmResult2 = doc1["doc"]["alarm_time"]["a1"];
+
+  if (music_options[1] != -1){
+    sprintf(setting_alarms[1], alarmResult2);
+    currNumberAlarms++;
+  }
+  else{
+    *setting_alarms[1] = '\0';
+  }
+
+  const char* alarmResult3 = doc1["doc"]["alarm_time"]["a2"];
+
+  if (music_options[2] != -1){
+    sprintf(setting_alarms[2], alarmResult3);
+    currNumberAlarms++;
+  }  
+  else{
+    *setting_alarms[2] = '\0';
+  }
+
+  const char* alarmResult4 = doc1["doc"]["alarm_time"]["a3"];
+  // Serial.println(strlen(alarmResult4));
+  // Serial.println(alarmResult4);
+
+  if (music_options[3] != -1){
+    // Serial.println("REACHED_4");
+    sprintf(setting_alarms[3], alarmResult4);
+    currNumberAlarms++;
+  }
+  else{
+    *setting_alarms[3] = '\0';
+  }
+
+  const char* alarmResult5 = doc1["doc"]["alarm_time"]["a4"];
+
+  if (music_options[4] != -1){
+    sprintf(setting_alarms[4], alarmResult5);
+    currNumberAlarms++;
+  }
+  else{
+    *setting_alarms[4] = '\0';
+  }
+
+}
+
+void setup_settings()
+{   // change to run after user logs in
+  currNumberAlarms = 0;
+  get_alarms_db();
+  // pull current alarms for user and update currNumberAlarms based on that
+}
+
+int update_db_alarms(){  
+
+  tft.println("Saving your alarms ... hold tight!");
+
+  if (currNumberAlarms < 5){
+    for (int i = currNumberAlarms; i < 5; i++){
+      sprintf(setting_alarms[i], ".");
+    }
+  }
+
+// https://arduino.stackexchange.com/questions/84183/how-to-send-int-array-with-esp8266-http-post-request
+
+  char alarmTimesArray[100];
+  // sprintf(alarmTimesArray, "[\"%s\",\"%s\",\"%s\"]", setting_alarms[0], setting_alarms[1], setting_alarms[2]);
+  sprintf(alarmTimesArray, "[\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"]", setting_alarms[0], setting_alarms[1], setting_alarms[2], setting_alarms[3], setting_alarms[4]);
+
+  char musicOptionsArray[100];
+  // sprintf(musicOptionsArray, "[%d,%d,%d]", music_options[0], music_options[1], music_options[2]);
+  sprintf(musicOptionsArray, "[%d, %d, %d, %d, %d]", music_options[0], music_options[1], music_options[2], music_options[3], music_options[4]);
+
+  offset = 0;
+  offset += sprintf(json_body, "{\"user\"=\"%s\"&", temp_username);
+  offset += sprintf(json_body + offset, "\"alarm_time\"=%s&", alarmTimesArray);
+  offset += sprintf(json_body + offset, "\"music\"=%s}", musicOptionsArray);
+  
+  Serial.println("JSON");
+  Serial.println(json_body);
+
+  offset = 0;
+  int len = strlen(json_body);
+  request_post[0] = '\0'; //set 0th byte to null  
+  offset += sprintf(request_post + offset, "POST http://608dev-2.net/sandbox/sc/team41/alarms/save_alarms.py?user=%s&alarm_time=%s&music=%s HTTP/1.1\r\n", temp_username, alarmTimesArray, musicOptionsArray);
+  offset += sprintf(request_post + offset, "Host: 608dev-2.net\r\n");
+  offset += sprintf(request_post + offset, "Content-Type: application/json\r\n");
+  offset += sprintf(request_post + offset, "cache-control: no-cache\r\n");
+  offset += sprintf(request_post + offset, "Content-Length: %d\r\n\r\n", len);
+  offset += sprintf(request_post + offset, "%s\r\n", json_body);
+  do_http_request("608dev-2.net", request_post, response_post, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+  Serial.println(request_post); 
+
+  return 2; 
+}
+
+int handle_settings()
 {
+  tft.setTextSize(1.5);
   if (setting_state == PRINT_ALARMS)
   {
     display_alarms();
@@ -60,13 +206,17 @@ void handle_settings()
   }
   if (setting_state == DISP)
   {
-    // ADD SETTINGS - CHANGE BRIGHTNESS
-    // button34.read();
-    // if (button34.button_pressed && millis() - button34.button_change_time > BUTTON_PRESS_BUFFER)
-    // {
-    //   button34.button_change_time = millis();
+    button39.read();
+    if (button39.button_pressed && millis() - button39.button_change_time != 0) { // exit settings
+        button39.button_change_time = millis();
+        return 1;
+      }
 
-    // }
+    button34.read();
+    if (button34.button_pressed && millis() - button34.button_change_time != 0) { // LOGOUT of program, post alarms to database        
+        button34.button_change_time = millis();
+        return update_db_alarms();
+    }
 
     // ADD NEW ALARM
     button45.read();
@@ -113,7 +263,6 @@ void handle_settings()
       mins = 0;
       music_option = 0;
       setting_state = MODIFY_ALARM;
-      modify_prints(hour, mins, music_option);
     }
     button45.read();
     if (button45.button_pressed && millis() - button45.button_change_time > BUTTON_PRESS_BUFFER)
@@ -126,6 +275,7 @@ void handle_settings()
   if (setting_state == MODIFY_ALARM){
     modify_alarm_2(modAlarmNumber);
   }
+  return 0;
 }
 
 void alarm_choice_prints(){
@@ -150,10 +300,6 @@ void display_alarms()
       tft.printf(" Music:%d", music_options[i]);
       tft.println("");
     }
-    // else{
-    //   tft.printf("Alarm Number %d:", i+1);
-    //   tft.println("OFF");
-    // }
   }
   if (currNumberAlarms == 0){
     tft.println("No Alarms!");
@@ -167,15 +313,16 @@ void display_alarms()
     else{
       tft.println("Max Alarms Set!");
     }
+    tft.println("Button39: Back to Clock");
     if (currNumberAlarms != 0){
       tft.println("Button38: modify Alarm");
     }
+    tft.println("Button34: Logout");
   }
 }
 
 void delete_alarm(int alarm_id){
   // delete: move everything back one
-  Serial.println(alarm_id);
   for (int i = alarm_id + 1; i < currNumberAlarms; i++)
   {
     sprintf(setting_alarms[i-1], setting_alarms[i]); 
