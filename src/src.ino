@@ -15,7 +15,7 @@ int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
 
 float x, y, z; //variables for grabbing x,y,and z values
-int acc_mag;
+
 MPU6050 imu; //imu object called, appropriately, imu
 
 bool blocked = false;
@@ -33,7 +33,6 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-int timer;
 
 
 
@@ -299,6 +298,7 @@ void loop(){
     //if (strcmp(time, "06:48") == 0) {
     musicIndex = activeAlarm1();
     if (musicIndex != -1){
+      Serial.println("ALARM RINGING");
       
     mainState = 1;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
@@ -308,6 +308,7 @@ void loop(){
     }
   } else if (mainState == 1){ //ALARM ACTIVATED
     wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
+    Serial.println("in her esomehow");
 
   } else if (mainState == 2){ //SETTINGS PAGE
     tft.setTextSize(1.5);

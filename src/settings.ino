@@ -15,7 +15,7 @@ int musicState = 0;
 // music_option -1 means alarm is deleted
 
 int music_options[maxAlarmNums];
-int music_options[50];
+
 
 // format as 20 alarms
 

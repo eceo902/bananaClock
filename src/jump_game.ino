@@ -4,8 +4,6 @@
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h>
 
-TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
-
 
 uint8_t jump_game_state; //state variable
 int jumps; //counting steps
@@ -14,7 +12,7 @@ float acc_mag = 0;  //used for holding the magnitude of acceleration
 float avg_acc_mag = 0; //used for holding the running average of acceleration magnitude
 
 const float ZOOM = 9.81; //for display (converts readings into m/s^2)...used for visualizing only
-float x, y, z; //variables for grabbing x,y,and z values
+
 //Serial printing:
 char output[100];
 
@@ -27,7 +25,7 @@ const float threshold = 17;
 const uint8_t REST = 0; //example definition
 const uint8_t JUMPED = 1; //example...
 
-MPU6050 imu; //imu object called, appropriately, imu
+
 
 uint8_t isJumpGameActive = 0;
 
@@ -60,9 +58,9 @@ void jump_setup() {
   jumps = 0; //initialize steps to zero!
 }
 
-void loop() {
-  playjumpgame();
-}
+//void loop() {
+//  playjumpgame();
+//}
 
 void playjumpgame(){
   switch (isJumpGameActive){
