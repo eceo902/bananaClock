@@ -31,27 +31,18 @@ MPU6050 imu; //imu object called, appropriately, imu
 
 uint8_t isJumpGameActive = 0;
 
-void setup() {
-  Serial.begin(115200); //for debugging if needed.
-  delay(50); //pause to make sure comms get set up
-  Wire.begin();
-  delay(50); //pause to make sure comms get set up
-  if (imu.setupIMU(1)) {
-    Serial.println("IMU Connected!");
-  } else {
-    Serial.println("IMU Not Connected :/");
-    Serial.println("Restarting");
-    ESP.restart(); // restart the ESP (proper way)
-  }
-  tft.init(); //initialize the screen
-  tft.setRotation(2); //set rotation for our layout
-  //jump_timer = millis();
-  tft.fillScreen(TFT_BLACK);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  jumps = 0; //initialize steps to zero!
-}
-
-// void jump_setup() {
+// void setup() {
+//   Serial.begin(115200); //for debugging if needed.
+//   delay(50); //pause to make sure comms get set up
+//   Wire.begin();
+//   delay(50); //pause to make sure comms get set up
+//   if (imu.setupIMU(1)) {
+//     Serial.println("IMU Connected!");
+//   } else {
+//     Serial.println("IMU Not Connected :/");
+//     Serial.println("Restarting");
+//     ESP.restart(); // restart the ESP (proper way)
+//   }
 //   tft.init(); //initialize the screen
 //   tft.setRotation(2); //set rotation for our layout
 //   //jump_timer = millis();
@@ -59,6 +50,15 @@ void setup() {
 //   tft.setTextColor(TFT_WHITE, TFT_BLACK);
 //   jumps = 0; //initialize steps to zero!
 // }
+
+void jump_setup() {
+  tft.init(); //initialize the screen
+  tft.setRotation(2); //set rotation for our layout
+  //jump_timer = millis();
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  jumps = 0; //initialize steps to zero!
+}
 
 void loop() {
   playjumpgame();
@@ -77,8 +77,6 @@ void playjumpgame(){
       Serial.println(output); //print to serial for plotting
 
       tft.println(output);
-      //tft.println("# Jumps: ");
-      //tft.println(steps);
       
       //while (millis() - jump_timer < LOOP_PERIOD); //wait for primary timer to increment
       //jump_timer = millis();
@@ -93,7 +91,6 @@ void playjumpgame(){
       
       tft.println("Game             \nCompleted");
       Serial.println("Game Completed");
-
 
       break;
   }
