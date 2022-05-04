@@ -21,9 +21,10 @@ const uint16_t IN_BUFFER_SIZE = 1000; //size of buffer to hold HTTP request
 const uint16_t OUT_BUFFER_SIZE = 1000; //size of buffer to hold HTTP response
 char request_buffer[IN_BUFFER_SIZE]; //char array buffer to hold HTTP request
 char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
-
-char prompt[100];   // char array for asking user for input
-char letters[100];  // char array for keyboard
+char response[1000];		   // char array buffer to hold HTTP request
+char letters[200];  // char array for keyboard
+char prompt[200];
+int timer;
 
 int masterState;
 
@@ -101,7 +102,6 @@ void setup(){
 
   setup_clock();
 
-  ledcWriteTone(0, 220);
   hasRung = false;
 }
 
@@ -113,7 +113,7 @@ void loop(){
         ledcWriteTone(0, 220);
         hasRung = true;
       }
-      if (hasRung && button39.update() != 0) {
+      if (button39.update() != 0) {
         ledcWriteTone(0, 0);
       }
 
@@ -121,8 +121,17 @@ void loop(){
         digitalWrite(20, HIGH);
         digitalWrite(21, LOW);
         masterState = 1;
-        strcpy(prompt, "Hi, type to login");
         setup_joystick();
+      }
+      if (button38.update() != 0) {
+        masterState = 2;
+        cipher_setup();
+        timer = millis();
+      }
+      if (button45.update() != 0) {
+        masterState = 3;
+        math_setup();
+        timer = millis();
       }
       break;
     }
@@ -152,6 +161,34 @@ void loop(){
         masterState = 0;
         setup_clock();
       }
+      break;
+    }
+    case 2:{
+      //not done returns -1
+      // const uint8_t EASYCIPHER = 0;
+      // const uint8_t NORMALCIPHER = 1;
+      // const uint8_t INSANECIPHER = 2;
+      int gameResult = cipher_loop();
+      if(gameResult != -1){
+        masterState = 0;
+        Serial.println(gameResult);
+        sprintf(letters, "you took %d seconds in %d mode", (millis()-timer/1000, gameResult));
+      }
+      break;
+    }
+    case 3:{
+      //not done returns -1
+      // const uint8_t EASYMATH = 0;
+      // const uint8_t NORMALMATH = 1;
+      // const uint8_t HARDMATH = 2;
+      // const uint8_t INSANEMATH = 3;
+      int gameResult = math_loop();
+      if(gameResult != -1){
+        masterState = 0;
+        Serial.println(gameResult);
+        sprintf(letters, "you took %d seconds in %d mode", (millis()-timer/1000, gameResult));
+      }
+      break;
     }
   }
 }   
