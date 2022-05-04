@@ -18,7 +18,7 @@ float x, y, z; //variables for grabbing x,y,and z values
 //Serial printing:
 char output[100];
 
-const uint8_t LOOP_PERIOD = 10; //milliseconds
+const uint8_t jump_LOOP_PERIOD = 10; //milliseconds
 //uint32_t jump_timer = 0;
 
 const float threshold = 17;
@@ -64,7 +64,7 @@ void loop() {
   playjumpgame();
 }
 
-void playjumpgame(){
+int playjumpgame(){
   switch (isJumpGameActive){
     case 0:
       averageaccel(); // update average
@@ -78,12 +78,13 @@ void playjumpgame(){
 
       tft.println(output);
       
-      //while (millis() - jump_timer < LOOP_PERIOD); //wait for primary timer to increment
+      //while (millis() - jump_timer < jump_LOOP_PERIOD); //wait for primary timer to increment
       //jump_timer = millis();
       
       if (jumps == 10){
         isJumpGameActive = 1;
       }
+      return 0;
       break;
     case 1:
       tft.setCursor(0, 0);
@@ -92,6 +93,7 @@ void playjumpgame(){
       tft.println("Game             \nCompleted");
       Serial.println("Game Completed");
 
+      return 1;
       break;
   }
 }
