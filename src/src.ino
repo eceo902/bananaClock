@@ -4,14 +4,23 @@
 #include <SPI.h> //Used in support of TFT Display
 #include <string.h>  //used for some string handling and processing.
 #include "Button.h"
+#include "images.h"
+//CURRENT BUGS
+//I think the timout after 1 min doesn't play the right music
+//star wars song is blocking and doesn exit in the middle
+//setting a time adds a +1
+//the alarm song onlly plays onece, not forever
 
-
+int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
 
 float x, y, z; //variables for grabbing x,y,and z values
 int acc_mag;
 MPU6050 imu; //imu object called, appropriately, imu
 
+bool blocked = false;
+unsigned long game_timer;
+int mainState = 0;
 
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
@@ -26,10 +35,9 @@ char letters[200];  // char array for keyboard
 char prompt[200];
 int timer;
 
-int masterState;
 
 
-char network[] = "MIT";
+char network[] = "MIT GUEST";
 char password[] = "";
 
 Button button45(45);
@@ -38,12 +46,27 @@ Button button38(38);
 Button button34(34);
 
 boolean hasRung;
+void playmusic(){
+  if (musicIndex == 0){
+    pirates();
+  } else if (musicIndex == 1){
+    harryPotter();
+  } else if (musicIndex == 2){
+    mario();
+  } else if (musicIndex == 4){
+    starWars();
+  } if (musicIndex == 3){
+
+    pinkPanther();
+  }
+}
 
 
 void setup(){
-  analogReadResolution(12);       // initialize the analog resolution
-
-  tft.init();
+  tft.init();  //init screen
+  tft.setRotation(1); //adjust rotation
+  tft.fillScreen(TFT_BLACK); //fill background
+  tft.setTextColor(TFT_GREEN, TFT_BLACK); //set color of font to green foreground, black background
 
   Serial.begin(115200); //begin serial comms
   delay(50); //pause to make sure comms get set up
@@ -88,6 +111,7 @@ void setup(){
   pinMode(34, INPUT_PULLUP); // fourth button
 
   pinMode(14, OUTPUT);
+
   ledcSetup(0, 200, 12);//12 bits of PWM precision
   ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
   ledcAttachPin(14, 0);
@@ -97,99 +121,201 @@ void setup(){
   pinMode(19, OUTPUT);
   pinMode(20, OUTPUT);
   pinMode(21, OUTPUT);
-
-
-  masterState = 0;
+  game_timer=millis();
 
   setup_clock();
-
-  hasRung = false;
+  setup_settings();
 }
 
-void loop(){
-  switch(masterState) {
-    case 0: {
-      char* time = loop_clock();
-      if (strcmp(time, "20:53") == 0 && !hasRung) {
-        ledcWriteTone(0, 220);
-        hasRung = true;
-      }
-      if (button39.update() != 0) {
-        ledcWriteTone(0, 0);
-      }
 
-      if (button34.update() != 0) {
-        digitalWrite(20, HIGH);
-        digitalWrite(21, LOW);
-        masterState = 1;
-        setup_joystick();
-      }
-      if (button38.update() != 0) {
-        masterState = 2;
-        cipher_setup();
-        timer = millis();
-      }
-      if (button45.update() != 0) {
-        masterState = 3;
-        math_setup();
-        timer = millis();
-      }
-      break;
+
+//used to get x,y values from IMU accelerometer!
+void get_angle(float* x, float* y) {
+  imu.readAccelData(imu.accelCount);
+  *x = imu.accelCount[0] * imu.aRes;
+  *y = imu.accelCount[1] * imu.aRes;
+}
+
+
+
+class gameChooser {
+    int game_index;
+    int state;
+    uint32_t scroll_timer;
+    const int scroll_threshold = 150;
+    const float angle_threshold = 0.3;
+  public:
+
+    gameChooser() {
+      state = 0;
+      game_index = 0;
+      scroll_timer = millis();
     }
-    case 1: {
-      bool hasSubmitted = loop_joystick();
-      if (hasSubmitted) {
-        char body[100]; //for body
-        sprintf(body, "username=%s", letters);
-        sprintf(request_buffer, "POST http://608dev-2.net/sandbox/sc/team41/login/esp_login.py HTTP/1.1\r\n");
-        strcat(request_buffer, "Host: 608dev-2.net\r\n");
-        strcat(request_buffer, "Content-Type: application/x-www-form-urlencoded\r\n");
-        sprintf(request_buffer + strlen(request_buffer), "Content-Length: %d\r\n", strlen(body)); //append string formatted to end of request buffer
-        strcat(request_buffer, "\r\n"); //new line from header to body
-        strcat(request_buffer, body); //body
-        strcat(request_buffer, "\r\n"); //new line
-        Serial.println(request_buffer);
-        do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
-        Serial.println(response_buffer); //viewable in Serial Terminal
-        tft.fillScreen(TFT_BLACK);
-        tft.setCursor(0, 0, 1);
-        tft.println(response_buffer);
-        memset(letters, 0, sizeof(letters));
+
+    void update(float angle, int button, bool alarm) {
+
+      if ((alarm == true) && (state == 0)){
+        state = 1;
+        Serial.println("Alarm ringing, starting state 1");
+        
+        //ADD CLOCK BACKGROUND
+        tft.setSwapBytes(true); 
+        tft.pushImage(0, 0, 640, 480, clockImage);
+        tft.setRotation(2);
+        tft.setTextSize(1);
+        tft.setCursor(10, 40);
+        playmusic();
+
+      } else if (state == 1){
+
+        if (button == 1){ //DEACTIVATING THE ALARM
+          Serial.println("Pressing button, deactivating alarm, moving to state 2");
+          state = 2;
+          tft.pushImage(0, 0, 480, 320, test);
+          tft.setCursor(10, 40);
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.drawString(" Choose Your Game:", 0,  20, 2);
+          tft.println("   Math");
+          tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
+          tft.println("   Jumping");
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.println("   Maze");
+          ledcWriteTone(0, 0);
+
+          game_timer = millis();
+        }
+      } else if (state == 2){ //GAME SELECTION
+
+	      if((button==1) && (millis() - game_timer >= 100)){ //PRESSED BUTTON TO SELECT GAME
+		
+          tft.fillScreen(TFT_BLACK);
+          tft.setCursor(10, 40);
+          if (game_index == 2){
+            tft.println("Playing the Math Game!");
+            state = 3;
+          } else if(game_index == 0){
+            tft.println("Playing the Jumping Game!");
+            state == 4;
+          } else {
+            tft.println("Playing the Maze Game!");
+            state = 5;
+          }
+          game_index=0;
+          scroll_timer=millis();
+
+        } else if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
+          state = 1;
+          ledcWriteTone(0, 220);
+          tft.pushImage(0, 0, 640, 480, clockImage);
+  
+      } else if (scroll_threshold<=millis()-scroll_timer){
+        scroll_timer=millis();
+        bool changed = true;
+        if (angle_threshold <= angle){
+
+          if(game_index>=2){
+            game_index=0;
+          }else{
+            game_index+=1;	
+          }
+
+        } else if(angle<=-angle_threshold){ //CHANGING GAME SELETIONG
+          if(game_index<=0){
+              game_index=2;
+          }else{
+              game_index-=1;
+          }   
+        } else {
+          changed = false;
+        }
+
+    if (changed == true){ //CHANGED GAME SELECTION
+      if (game_index == 0){
+          //tft.fillScreen(TFT_BLACK);
+          tft.setCursor(10, 40);
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.drawString(" Choose Your Game:", 0,  20, 2);
+          tft.println("   Math");
+          tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
+          tft.println("   Jumping");
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.println("   Maze");
+      } else if (game_index == 1){
+
+          //tft.fillScreen(TFT_BLACK);
+          tft.setCursor(10, 40);
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.drawString(" Choose Your Game:", 0, 20, 2);
+          tft.println("   Math");
+          
+          tft.println("   Jumping");
+          tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
+          tft.println("   Maze");
+      } else {
+          //tft.fillScreen(TFT_BLACK);
+          tft.setCursor(10, 40);
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.drawString(" Choose Your Game:", 0, 20, 2);
+          tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
+          tft.println("   Math");
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.println("   Jumping");
+          tft.println("   Maze");
       }
-      if (button34.update() != 0) {
-        digitalWrite(20, LOW);
-        digitalWrite(21, HIGH);
-        masterState = 0;
-        setup_clock();
-      }
-      break;
     }
-    case 2:{
-      //not done returns -1
-      // const uint8_t EASYCIPHER = 0;
-      // const uint8_t NORMALCIPHER = 1;
-      // const uint8_t INSANECIPHER = 2;
-      int gameResult = cipher_loop();
-      if(gameResult != -1){
-        masterState = 0;
-        Serial.println(gameResult);
-        sprintf(letters, "you took %d seconds in %d mode", (millis()-timer/1000, gameResult));
-      }
-      break;
+
+
     }
-    case 3:{
-      //not done returns -1
-      // const uint8_t EASYMATH = 0;
-      // const uint8_t NORMALMATH = 1;
-      // const uint8_t HARDMATH = 2;
-      // const uint8_t INSANEMATH = 3;
-      int gameResult = math_loop();
-      if(gameResult != -1){
-        masterState = 0;
-        Serial.println(gameResult);
-        sprintf(letters, "you took %d seconds in %d mode", (millis()-timer/1000, gameResult));
-      }
-      break;
+  } else if ((state == 3) || (state == 4) || (state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
+    if (millis() - game_timer >= 60000 ){
+    state = 1;
+    Serial.println("timeout, back to state 1");
+    ledcWriteTone(0, 220);
+    tft.pushImage(0, 0, 640, 480, clockImage);
+  } else if (button == 1){
+    state = 0;
+    tft.fillScreen(TFT_BLACK);
+    tft.println("Good morning! You have completed the game :)");
+    mainState = 0;
+    Serial.println("finished game, congratulations!");
+    delay(5000);
+    tft.fillScreen(TFT_BLACK);
+    tft.setRotation(1);
+  }
+}
+}
+};
+gameChooser wg; //wikipedia object
+
+
+
+void loop(){
+  float x, y;
+  get_angle(&x, &y); //get angle values
+  int bv = button34.update(); //get button value
+
+  if (mainState == 0){ //MAIN TIME DISPLAYED PAGE
+    char* time = loop_clock();
+    //if (strcmp(time, "06:48") == 0) {
+    musicIndex = activeAlarm1();
+    if (musicIndex != -1){
+      
+    mainState = 1;
+    wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
+    Serial.println("in here");
+    } else if (bv == 1){
+      mainState = 2;
+    }
+  } else if (mainState == 1){ //ALARM ACTIVATED
+    wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
+
+  } else if (mainState == 2){ //SETTINGS PAGE
+    tft.setTextSize(1.5);
+    handle_settings();
+    if (bv == 1){
+      mainState = 0;
+      tft.fillScreen(TFT_BLACK);
     }
   }
+
 }   
