@@ -59,9 +59,12 @@ char password[] = "";
 Button button45(45);
 Button button45Testing(45);
 Button button39(39);
+Button button39Clock(39);
 Button button38(38);
 Button button34(34);
 Button button34Testing(34);
+Button button34Clock(34);
+Button button34Settings(34);
 
 bool hasRung;
 void playmusic(){
@@ -168,7 +171,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  //setup_login();
+  setup_login();
 }
 
 
@@ -397,16 +400,19 @@ void loop(){
   float x, y;
   get_angle(&x, &y); //get angle values
   int bv = button34Testing.update(); //get button value
+  int b34C = button34Clock.update();
+  int b34S = button34Settings.update();
   button39.read(); //get button value
   int bv8 = button45Testing.update();
+  int b39C = button39Clock.update();
 
   if (mainState == 0){
-    //int loopTemp = loop_login();
-    //if (loopTemp != -1) {
+    int loopTemp = loop_login();
+    if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
-    //}
+    }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
@@ -423,7 +429,7 @@ void loop(){
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
     // go into settings
-     } else if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+     } else if (b39C != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
       // button39.button_change_time = millis();     
       goto_settings();
       if (!loggedIn){
@@ -432,7 +438,7 @@ void loop(){
       }
       mainState = 3;
     }
-    else if (button34.update() != 0){ // USER SETTINGS
+    else if (b34C != 0){ // USER SETTINGS
       mainState = 4; 
     }
   } 
@@ -448,8 +454,7 @@ void loop(){
       mainState = 1;
       setup_clock();
     }
-
-    if (result == 2){
+    else if (result == 2){
       loggedIn = false;
       mainState = 0;
       setup_login();
@@ -461,7 +466,7 @@ void loop(){
       mainState = 0;
       setup_login();    
     }
-    else if (button34.update() != 0){
+    else if (b34S != 0){
       mainState = 1;
       setup_clock();
     }
