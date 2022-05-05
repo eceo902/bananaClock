@@ -167,6 +167,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
+  setup_login();
 }
 
 // void loop(){
@@ -431,7 +432,13 @@ void loop(){
   button39.read(); //get button value
   int bv8 = button45.update();
 
-  if (mainState == 0){ //MAIN TIME DISPLAYED PAGE
+  if (mainState == 0){
+    mainState = 1;
+    //int loopTemp = loop_login();
+    //if (loopTemp != -1){
+    //  mainState = 1;
+    //}
+  } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
     //if (strcmp(time, "06:48") == 0) {
     musicIndex = activeAlarm1();
@@ -440,7 +447,7 @@ void loop(){
     if ((musicIndex != -1) || (bv8 == 1)){
       Serial.println("ALARM RINGING");
       
-    mainState = 1;
+    mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
     // go into settings
      } else if (button39.update() == 1){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
@@ -450,20 +457,25 @@ void loop(){
         get_alarms_user(); // pull users' alarms from db
         loggedIn = true;
       }
-      mainState = 2;
+      mainState = 3;
     }
-    else if (button34.update() == 1){
-      mainState = 3; // go to user settings
+    else if (button34.update() == 1){ // USER SETTINGS
+      mainState = 4; 
     }
   } else if (mainState == 1){ //ALARM ACTIVATED
     wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
 
-  } else if (mainState == 2){ //SETTINGS PAGE
+  } 
+  } else if (mainState == 2){ //ALARM ACTIVATED
+    wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
+
+
+  } else if (mainState == 3){ //SETTINGS PAGE
     tft.setTextSize(1.5);
     loggedIn = true;
     int result = handle_settings();
     if (result == 1 || result == 2) { // exit settings
-      mainState = 0;
+      mainState = 1;
       tft.fillScreen(TFT_BLACK);
 
       if (result == 2){
@@ -471,7 +483,7 @@ void loop(){
       }
     }
   }
-  else if (mainState == 3){
+  else if (mainState == 4){
     int result = handle_user_settings();
     if (result == 1){
       mainState = 0;
