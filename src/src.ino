@@ -466,7 +466,7 @@ void loop(){
     wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
 
   } 
-  } else if (mainState == 2){ //ALARM ACTIVATED
+  else if (mainState == 2){ //ALARM ACTIVATED
     wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
 
 
