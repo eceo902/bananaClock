@@ -287,6 +287,7 @@ class gameChooser {
       } else if (state == 1){
 
         if (button == 1){ //DEACTIVATING THE ALARM
+          stop_car();
           Serial.println("Pressing button, deactivating alarm, moving to state 2");
           state = 2;
           tft.pushImage(0, 0, 480, 320, test);
@@ -303,6 +304,8 @@ class gameChooser {
           ledcWriteTone(0, 0);
 
           game_timer = millis();
+        } else {
+          loop_car();
         }
       } else if (state == 2){ //GAME SELECTION
 
@@ -457,10 +460,16 @@ void loop(){
   int bv8 = button45Testing.update();
 
   if (mainState == 0){
+    //int loopTemp = loop_login();
+    //if (loopTemp != -1){
       mainState = 1;
       loggedIn = true;
+
       setup_clock();
     //}
+
+    
+
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
     //if (strcmp(time, "06:48") == 0) {
@@ -469,6 +478,7 @@ void loop(){
     //DELETE SECOND PART OF IF
     if ((musicIndex != -1) || (bv8 == 1)){
       Serial.println("ALARM RINGING");
+      setup_car();
       
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
