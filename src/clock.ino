@@ -48,6 +48,7 @@ void setup_clock() {   // this is called when transitioning to clock state
   tft.fillScreen(TFT_BLACK); //fill background
   tft.setTextColor(TFT_GREEN, TFT_BLACK); //set color of font to green foreground, black background
 
+  tft.setTextSize(1);
   tft.setCursor(0, 90, 1);
   tft.println("Buttons\n1-Seconds\n2-Always On\n3-Military");
 

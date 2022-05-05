@@ -23,7 +23,6 @@ char alarm5Time[8];
 const int maxAlarmNums = 5;
 char *setting_alarms[maxAlarmNums] = {alarm1Time, alarm2Time, alarm3Time, alarm4Time, alarm5Time}; //https://www.javatpoint.com/cpp-array-of-pointers
 
-char temp_username[] = "ccunning"; // temp username for now 
 // user username[] array instead of this
 
 TimeGetter tg;
@@ -80,7 +79,7 @@ void get_alarms_db(){
   request_get[0] = '\0'; //set 0th byte to null
   memset(response_get, 0, sizeof(response_get)); //set 0th byte to null
 
-  sprintf(request_get, "GET  http://608dev-2.net/sandbox/sc/team41/alarms/get_alarms.py?user=%s HTTP/1.1\r\n", temp_username);
+  sprintf(request_get, "GET  http://608dev-2.net/sandbox/sc/team41/alarms/get_alarms.py?user=%s HTTP/1.1\r\n", username);
   strcat(request_get, "Host: 608dev-2.net\r\n\r\n");
   do_http_request("608dev-2.net", request_get, response_get, BUFFER_SIZE_SETTINGS, RESPONSE_TIMEOUT, true);
 
@@ -180,7 +179,7 @@ int update_db_alarms(){
   sprintf(musicOptionsArray, "[%d, %d, %d, %d, %d]", music_options[0], music_options[1], music_options[2], music_options[3], music_options[4]);
 
   offset = 0;
-  offset += sprintf(json_body, "{\"user\"=\"%s\"&", temp_username);
+  offset += sprintf(json_body, "{\"user\"=\"%s\"&", username);
   offset += sprintf(json_body + offset, "\"alarm_time\"=%s&", alarmTimesArray);
   offset += sprintf(json_body + offset, "\"music\"=%s}", musicOptionsArray);
   
@@ -191,7 +190,7 @@ int update_db_alarms(){
   int len = strlen(json_body);
 
   request_post[0] = '\0'; //set 0th byte to null 
-  offset += sprintf(request_post + offset, "POST http://608dev-2.net/sandbox/sc/team41/alarms/save_alarms.py?user=%s&alarm_time=%s&music=%s HTTP/1.1\r\n", temp_username, alarmTimesArray, musicOptionsArray);
+  offset += sprintf(request_post + offset, "POST http://608dev-2.net/sandbox/sc/team41/alarms/save_alarms.py?user=%s&alarm_time=%s&music=%s HTTP/1.1\r\n", username, alarmTimesArray, musicOptionsArray);
   offset += sprintf(request_post + offset, "Host: 608dev-2.net\r\n");
   offset += sprintf(request_post + offset, "Content-Type: application/json\r\n");
   offset += sprintf(request_post + offset, "cache-control: no-cache\r\n");
