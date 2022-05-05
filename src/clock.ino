@@ -12,6 +12,7 @@ char hm[8];
 char hms[11];
 char hm_military[6];
 char hms_military[9];
+double acc_magg;
 
 uint8_t power_state;
 uint8_t style_state;
@@ -25,6 +26,9 @@ void setup_clock() {   // this is called when transitioning to clock state
   tft.setRotation(2); //adjust rotation
   tft.fillScreen(TFT_BLACK); //fill background
   tft.setTextColor(TFT_GREEN, TFT_BLACK); //set color of font to green foreground, black background
+
+  tft.setCursor(0, 90, 1);
+  tft.println("Buttons\n1-Seconds\n2-Always On\n3-Military");
 
   power_state = ALWAYS_ON;
   style_state = HOUR_MINUTE;
@@ -45,7 +49,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
   x = imu.accelCount[0] * imu.aRes;
   y = imu.accelCount[1] * imu.aRes;
   z = imu.accelCount[2] * imu.aRes;
-  acc_mag = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+  acc_magg = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
 
   switch(military_state) {
     case STANDARD:
@@ -85,7 +89,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
       if (power_input != 0) {
         power_state = ALWAYS_ON;
       }
-      else if (acc_mag > 0.5) {
+      else if (acc_magg > 0.5) {
         power_state = ON;        
         power_timer = millis();        
       }      
@@ -94,7 +98,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
       if (power_input != 0) {
         power_state = ALWAYS_ON;
       }
-      else if (acc_mag > 0.5) {
+      else if (acc_magg > 0.5) {
         power_timer = millis();
       }
       else if (millis() - power_timer > 15000) {
