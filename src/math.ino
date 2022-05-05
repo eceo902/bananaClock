@@ -139,7 +139,7 @@ int math_loop()
 	mathbutton3_click = button34.update() != 0;
 	mathbutton4_click = button38.update() != 0;
 
-	char output[1000];
+	char output[500];
 	tft.setCursor(0, 0, 2);
 	int mode = -1;
 	switch (math_state)
@@ -322,20 +322,25 @@ int math_loop()
 		}
 		}
 		sprintf(output, question);
+		// sprintf(prompt, question);
 		sprintf(input, "0000\0");
 		inputIndex = 0;
 		tft.println(output);
 		math_state = MATHSOLVING;
+		//setup_joystick();
 		break;
 	}
 	case (MATHSOLVING):
 	{
+		//THIS IS ALL FOR NO KEYBOARD
+
 		// if (button1_click)
 		// 	simpleInput++;
 		// if (button2_click && simpleInput >= 0)
 		// 	simpleInput--;
 		if (mathbutton1_click)
 		{
+			//inputIndex = (inputIndex + 3) % 4;
 			input[3 - inputIndex] = (((input[3 - inputIndex] - '0') + 1) % 10 + '0');
 		}
 		if (mathbutton2_click)
@@ -355,7 +360,7 @@ int math_loop()
 				blink[i] = input[i];
 			}
 		}
-		if (mathbutton3_click)
+		if (mathbutton4_click)
 		{
 			if (atoi(input) == answer)
 			{
@@ -371,10 +376,26 @@ int math_loop()
     Serial.println(input);
 
 		if (millis() % 1000 < 500)
-			sprintf(output, "%s%s                                                                                                          \0", question, input);
+			sprintf(output, "%s %s                                                                                                          ", question, input);
 		else
-			sprintf(output, "%s%s                                                                                                          \0", question, blink);
+			sprintf(output, "%s %s                                                                                                          ", question, blink);
 		tft.println(output);
+
+		// YES KEYBOARD
+
+		// int change = loop_joystick();
+		// if(change ==1){
+		// 	if (atoi(input) == answer)
+		// 	{
+		// 		math_state = MATHOFF;
+		// 		mode = math_difficulty;
+		// 	}
+		// 	else
+		// 	{
+		// 		math_state = MATHSTART;
+		// 	}
+		// }
+
 		break;
 	}
 	}
