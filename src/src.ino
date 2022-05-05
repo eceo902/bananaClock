@@ -10,6 +10,7 @@
 //star wars song is blocking and doesn exit in the middle
 //setting a time adds a +1
 //the alarm song onlly plays onece, not forever
+//if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -191,10 +192,11 @@ class gameChooser {
           tft.setCursor(10, 40);
           if (game_index == 2){
             tft.println("Playing the Math Game!");
+            math_setup();
             state = 3;
           } else if(game_index == 0){
             tft.println("Playing the Jumping Game!");
-            state == 4;
+            state = 4;
           } else {
             tft.println("Playing the Maze Game!");
             state = 5;
@@ -265,13 +267,13 @@ class gameChooser {
 
 
     }
-  } else if ((state == 3) || (state == 4) || (state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
+  } else if ((state == 4) || (state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
     if (millis() - game_timer >= 60000 ){
     state = 1;
     Serial.println("timeout, back to state 1");
     ledcWriteTone(0, 220);
     tft.pushImage(0, 0, 640, 480, clockImage);
-  } else if (button == 1){
+    } else if (button == 1){
     state = 0;
     tft.fillScreen(TFT_BLACK);
     tft.println("Good morning! You have completed the game :)");
@@ -280,8 +282,13 @@ class gameChooser {
     delay(5000);
     tft.fillScreen(TFT_BLACK);
     tft.setRotation(1);
+    }
+  } else if (state == 3){
+    int mathGameVal = math_loop();
+    if (mathGameVal != -1){
+      state = 5;
+    }
   }
-}
 }
 };
 gameChooser wg; //wikipedia object
@@ -308,7 +315,7 @@ void loop(){
     }
   } else if (mainState == 1){ //ALARM ACTIVATED
     wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
-    Serial.println("in her esomehow");
+
 
   } else if (mainState == 2){ //SETTINGS PAGE
     tft.setTextSize(1.5);
