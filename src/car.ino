@@ -1,30 +1,30 @@
 int driveState;
 
-float timer;
+float carTimer;
 
 
 void setup_car() {
   driveState = 0;
 
-  timer = millis();
+  carTimer = millis();
 }
 
 // Generalize this so that any shape with some side length can be driven
 void loop_car() {
   switch (driveState) {
     case 0:
-      if (millis() - timer > 3000) {
+      if (millis() - carTimer > 3000) {
         digitalWrite(18, LOW);
         digitalWrite(19, HIGH);
         driveState = 1;
-        timer = millis();
+        carTimer = millis();
       }
     case 1:
-      if (millis() - timer > 2900) {
+      if (millis() - carTimer > 2900) {
         digitalWrite(18, HIGH);
         digitalWrite(19, LOW);
         driveState = 0;
-        timer = millis();
+        carTimer = millis();
       }
   }
 }

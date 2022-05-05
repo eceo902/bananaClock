@@ -82,7 +82,7 @@ int playjumpgame(){
       if (jumps == 10){
         isJumpGameActive = 1;
       }
-      return 0;
+      return -1; // incomplete
       break;
     case 1:
       tft.setCursor(0, 0);
@@ -91,7 +91,7 @@ int playjumpgame(){
       tft.println("Game             \nCompleted");
       Serial.println("Game Completed");
 
-      return 1;
+      return 1; // incomplete
       break;
   }
 }
