@@ -43,7 +43,7 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
- char username[200] = "cTesting";
+char username[200];
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True"; // TODO: set based on log-in by Tues 
@@ -172,81 +172,6 @@ void setup(){
   setup_login();
 }
 
-// void loop(){
-//   switch(masterState) {
-//     case IN_SETTINGS:
-//     {
-//       int result = handle_settings(); // how to leave settings after running code
-
-//       if (result == 1 || result == 2) { // exit settings
-//         masterState = IN_CLOCK;
-//         tft.fillScreen(TFT_BLACK);
-
-//         if (result == 2){
-//           loggedIn=false;
-//         }
-//       }
-//       break;
-//     }
-//     case IN_CLOCK: 
-//     {
-//       char* time = loop_clock();
-//       if (strcmp(time, "20:53") == 0 && !hasRung) {
-//         ledcWriteTone(0, 220);
-//         hasRung = true;
-//       }
-//       if (button39.update() != 0) {
-//         ledcWriteTone(0, 0);
-//       }
-
-//       if (button34.update() != 0) {
-//         masterState = 1;
-//         // setup_joystick();
-//       }
-
-//       if (button38.update() != 0) {
-//         Serial.println("REACHED");
-//         goto_settings();
-//         if (!loggedIn){ // TODO: change so only go to settings after login
-//           Serial.println("REACHED");
-//           setup_settings();
-//           loggedIn = true;
-//         }
-//         masterState = IN_SETTINGS;
-//       }
-
-//       break;
-//     }
-//     case 1: {
-//         // pull alarms for current user & update that
-
-//         // bool hasSubmitted = loop_joystick(letters);
-//         // if (hasSubmitted) 
-//         // {
-//         //   // use test username "ccunning"
-//         //   // if hasSubmitted, 34 makes sense for settings, w/in settings have logoff
-//         //   // bunch of cases, transition between
-//         //   char body[100]; //for body
-//         //   sprintf(body, "username=%s", letters);
-//         //   sprintf(request_buffer, "POST http://608dev-2.net/sandbox/sc/team41/login/esp_login.py HTTP/1.1\r\n");
-//         //   strcat(request_buffer, "Host: 608dev-2.net\r\n");
-//         //   strcat(request_buffer, "Content-Type: application/x-www-form-urlencoded\r\n");
-//         //   sprintf(request_buffer + strlen(request_buffer), "Content-Length: %d\r\n", strlen(body)); //append string formatted to end of request buffer
-//         //   strcat(request_buffer, "\r\n"); //new line from header to body
-//         //   strcat(request_buffer, body); //body
-//         //   strcat(request_buffer, "\r\n"); //new line
-//         //   Serial.println(request_buffer);
-//         //   do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
-//         //   Serial.println(response_buffer); //viewable in Serial Terminal
-//         //   tft.fillScreen(TFT_BLACK);
-//         //   tft.setCursor(0, 0, 1);
-//         //   tft.println(response_buffer);
-//         //   sprintf(username, letters);
-//         //   memset(letters, 0, sizeof(letters));
-//         }
-//       if (button34.update() != 0) {
-//         masterState = 0;
-//         setup_clock();
 
 //used to get x,y values from IMU accelerometer!
 void get_angle(float* x, float* y) {
@@ -261,7 +186,7 @@ class gameChooser {
     int game_index;
     int state;
     uint32_t scroll_timer;
-    const int scroll_threshold = 150;
+    const int scroll_threshold = 500;
     const float angle_threshold = 0.3;
   public:
 
@@ -278,8 +203,10 @@ class gameChooser {
         Serial.println("Alarm ringing, starting state 1");
         
         //ADD CLOCK BACKGROUND
-        tft.setSwapBytes(true); 
-        tft.pushImage(0, 0, 640, 480, clockImage);
+       // tft.setSwapBytes(true); 
+        //tft.pushImage(0, 0, 640, 480, clockImage);
+        tft.fillScreen(TFT_BLACK);
+      tft.println("Alarm Ringing");
         tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
@@ -291,7 +218,9 @@ class gameChooser {
           stop_car();
           Serial.println("Pressing button, deactivating alarm, moving to state 2");
           state = 2;
-          tft.pushImage(0, 0, 480, 320, test);
+          tft.fillScreen(TFT_BLACK);
+          //tft.pushImage(0, 0, 480, 320, test);
+          
           tft.setCursor(10, 40);
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.drawString(" Choose Your Game:", 0,  20, 2);
@@ -301,7 +230,7 @@ class gameChooser {
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Maze");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
           ledcWriteTone(0, 0);
 
           game_timer = millis();
@@ -327,7 +256,8 @@ class gameChooser {
             tft.println("Playing the Maze Game!");
             state = 5;
           } else {
-            tft.println("Playing Cypher!");
+            tft.println("Playing Cipher!");
+            cipher_setup();
             state = 6;
           }
           game_index=0;
@@ -336,7 +266,11 @@ class gameChooser {
         } else if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
           state = 1;
           ledcWriteTone(0, 220);
-          tft.pushImage(0, 0, 640, 480, clockImage);
+          //tft.pushImage(0, 0, 640, 480, clockImage);
+
+      tft.println("Alarm Ringing");
+          tft.fillScreen(TFT_BLACK);
+          
   
       } else if (scroll_threshold<=millis()-scroll_timer){
         scroll_timer=millis();
@@ -371,7 +305,7 @@ class gameChooser {
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Maze");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       } else if (game_index == 1){
 
           //tft.fillScreen(TFT_BLACK);
@@ -384,7 +318,7 @@ class gameChooser {
           tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
           tft.println("   Maze");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       } else if (game_index == 3){
           //tft.fillScreen(TFT_BLACK);
           tft.setCursor(10, 40);
@@ -395,7 +329,7 @@ class gameChooser {
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Jumping");
           tft.println("   Maze");
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       } else {
         tft.setCursor(10, 40);
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
@@ -406,13 +340,13 @@ class gameChooser {
           tft.println("   Jumping");
           tft.println("   Maze");
           tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       }
     }
 
 
     }
-  } else if ((state == 5) || (state == 6)){ //SEPARATE THIS AS GAMES ARE DONE
+  } else if ((state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
   //FIX THIS NEEDS TO BE ADDED
     //if (millis() - game_timer >= 60000 ){
     //state = 1;
@@ -438,6 +372,13 @@ class gameChooser {
     Serial.println(mathGameVal);
     Serial.println("printing");
     if (mathGameVal != -1){
+      state = 5;
+    }
+  } else if (state == 6){
+    int cipherGameVal = cipher_loop();
+    // Serial.println(cipherGameVal);
+    // Serial.println("printing");
+    if (cipherGameVal != -1){
       state = 5;
     }
   } else if (state == 4){
@@ -476,6 +417,8 @@ void loop(){
     //DELETE SECOND PART OF IF
     if ((musicIndex != -1) || (bv8 != 0)){
       Serial.println("ALARM RINGING");
+      tft.fillScreen(TFT_BLACK);
+      tft.println("Alarm Ringing");
       setup_car();
       
     mainState = 2;

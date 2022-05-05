@@ -379,8 +379,8 @@ int math_loop()
 				math_state = MATHSTART;
 			}
 		}
-    Serial.println(question);
-    Serial.println(input);
+    // Serial.println(question);
+    // Serial.println(input);
 
 		if (millis() % 1000 < 500)
 			sprintf(output, "%s %s                                                                                                          ", question, input);
