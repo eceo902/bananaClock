@@ -1,6 +1,3 @@
-// TODO: add something to change if data shared
-// TODO: fix time changing
-
 const uint16_t JSON_BODY_SIZE = 4000;
 
 const int BUFFER_SIZE_SETTINGS = 10000;
@@ -41,7 +38,7 @@ int music_options[maxAlarmNums];
 
 // format as 20 alarms
 
-const int BUTTON_PRESS_BUFFER = 300;
+const int BUTTON_PRESS_BUFFER = 250;
 
 int currNumberAlarms;
 int modAlarmNumber;
@@ -128,6 +125,8 @@ void get_alarms_db(){
   }
 
   const char* alarmResult4 = doc1["doc"]["alarm_time"]["a3"];
+  // Serial.println(strlen(alarmResult4));
+  // Serial.println(alarmResult4);
 
   if (music_options[3] != -1){
     // Serial.println("REACHED_4");
@@ -150,7 +149,7 @@ void get_alarms_db(){
 
 }
 
-void get_alarms_user()
+void setup_settings()
 {   // change to run after user logs in
   currNumberAlarms = 0;
   get_alarms_db();
@@ -158,8 +157,6 @@ void get_alarms_user()
 }
 
 int update_db_alarms(){  
-
-  // Serial.println("POSTING");
 
   tft.println("Saving your alarms ... hold tight!");
 
@@ -189,8 +186,7 @@ int update_db_alarms(){
 
   offset = 0;
   int len = strlen(json_body);
-
-  request_post[0] = '\0'; //set 0th byte to null 
+  request_post[0] = '\0'; //set 0th byte to null  
   offset += sprintf(request_post + offset, "POST http://608dev-2.net/sandbox/sc/team41/alarms/save_alarms.py?user=%s&alarm_time=%s&music=%s HTTP/1.1\r\n", temp_username, alarmTimesArray, musicOptionsArray);
   offset += sprintf(request_post + offset, "Host: 608dev-2.net\r\n");
   offset += sprintf(request_post + offset, "Content-Type: application/json\r\n");
@@ -213,16 +209,28 @@ int handle_settings()
   }
   if (setting_state == DISP)
   {
-    button34.read();
-    if (button34.button_pressed && millis() - button34.button_change_time  != 0) { // exit settings
-        button34.button_change_time = millis();
+    button39.read();
+    if (button39.button_pressed && millis() - button39.button_change_time != 0) { // exit settings
+        button39.button_change_time = millis();
         return 1;
       }
 
-    button39.read();
-    if (button39.button_pressed && millis() - button39.button_change_time  >= 100) { // LOGOUT of program, post alarms to database        
-        button39.button_change_time = millis();
+    button34.read();
+    if (button34.button_pressed && millis() - button34.button_change_time != 0) { // LOGOUT of program, post alarms to database        
+        button34.button_change_time = millis();
         return update_db_alarms();
+    }
+
+    // ADD NEW ALARM
+    button45.read();
+    if (button45.button_pressed && millis() - button45.button_change_time > BUTTON_PRESS_BUFFER && currNumberAlarms < maxAlarmNums)
+    {
+      button45.button_change_time = millis();
+      hour = 1;
+      mins = 0;
+      music_option = 0;
+      setting_state = ADD;
+      scroll_timer = millis();
     }
 
     // ADD NEW ALARM
@@ -320,11 +328,11 @@ void display_alarms()
     else{
       tft.println("Max Alarms Set!");
     }
-    tft.println("Button34: Back to Clock");
+    tft.println("Button39: Back to Clock");
     if (currNumberAlarms != 0){
       tft.println("Button38: modify Alarm");
     }
-    tft.println("Button39: Logout");
+    tft.println("Button34: Logout");
   }
 }
 
@@ -531,13 +539,14 @@ void modify_alarm(int alarm_num)
 int activeAlarm1(){
   char* time = loop_clock();
   for (int i = 0; i < currNumberAlarms; i++){
-    if (music_options[i] != -1){ // if (*setting_alarms[i] != '\0'){
+    if (*setting_alarms[i] != '\0'){
       if (strcmp(time, setting_alarms[i]) == 0){
         Serial.println("should be returning a valid music option");
         return music_options[i];
       }
 
     }
+   
   }
   return -1;
 }
