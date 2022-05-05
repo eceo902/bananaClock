@@ -21,7 +21,7 @@ int loop_login() {
 		do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 		Serial.println(response_buffer); //viewable in Serial Terminal
 
-    if (strcmp(response_buffer, "Login complete") == 0) {
+    if (strcmp(response_buffer, "Login complete\n") == 0) {
       strcpy(username, letters);
       memset(letters, 0, sizeof(letters));
       return 1;
