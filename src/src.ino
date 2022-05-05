@@ -168,7 +168,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  setup_login();
+  //setup_login();
 }
 
 
@@ -356,7 +356,7 @@ class gameChooser {
     state = 0;
     tft.fillScreen(TFT_BLACK);
     tft.println("Good morning! You have completed the game :)");
-    mainState = 0;
+    mainState = 1;
     Serial.println("finished game, congratulations!");
     delay(5000);
     tft.fillScreen(TFT_BLACK);
@@ -401,12 +401,12 @@ void loop(){
   int bv8 = button45Testing.update();
 
   if (mainState == 0){
-    int loopTemp = loop_login();
-    if (loopTemp != -1) {
+    //int loopTemp = loop_login();
+    //if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
-    }
+    //}
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
