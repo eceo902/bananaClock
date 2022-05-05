@@ -29,8 +29,8 @@ bool blocked = false;
 unsigned long game_timer;
 int mainState = 0;
 
+// char username[200];  // global variable for username
 char shareData[] = "True";
-
 
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
@@ -43,7 +43,7 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
- char username[200] = "karenTesting";
+ char username[200] = "cTesting";
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True";
@@ -449,10 +449,9 @@ void loop(){
       
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
-    Serial.println("in here");
     // go into settings
-    } else if (button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
-      button39.button_change_time = millis();     
+     } else if (button39.update() == 1){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+      // button39.button_change_time = millis();     
       goto_settings();
       if (!loggedIn){
         get_alarms_user(); // pull users' alarms from db
@@ -460,7 +459,14 @@ void loop(){
       }
       mainState = 3;
     }
-  } else if (mainState == 2){ //ALARM ACTIVATED
+    else if (button34.update() == 1){ // USER SETTINGS
+      mainState = 4; 
+    }
+  } else if (mainState == 1){ //ALARM ACTIVATED
+    wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
+
+  } 
+  else if (mainState == 2){ //ALARM ACTIVATED
     wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
 
 
@@ -477,5 +483,11 @@ void loop(){
       }
     }
   }
-
+  else if (mainState == 4){
+    int result = handle_user_settings();
+    if (result == 1){
+      mainState = 0;
+      tft.fillScreen(TFT_BLACK);      
+    }
+  }
 }   
