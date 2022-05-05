@@ -93,7 +93,7 @@ int loop_joystick() {
   int typeInput = button45.update();
   if (typeInput != 0 && position.y > vertOffset - 5) {    // Weird but we need to check if we are past the vertical offset in this if-statement
     if (position.y < vertOffset + 11 && position.x > qOffset - 3) {
-      if (position.x < qOffset + 8) letters[strlen(letters)] = 'Q';
+           if (position.x < qOffset + 8) letters[strlen(letters)] = 'Q';
       else if (position.x < (qOffset + 8) + (1 * 12)) letters[strlen(letters)] = 'W';
       else if (position.x < (qOffset + 8) + (2 * 12)) letters[strlen(letters)] = 'E';
       else if (position.x < (qOffset + 8) + (3 * 12)) letters[strlen(letters)] = 'R';
@@ -105,7 +105,7 @@ int loop_joystick() {
       else if (position.x < (qOffset + 8) + (9 * 12)) letters[strlen(letters)] = 'P';
     }
     else if (position.y < vertOffset + 27 && position.x > aOffset - 3) {
-      if (position.x < aOffset + 8) letters[strlen(letters)] = 'A';
+           if (position.x < aOffset + 8) letters[strlen(letters)] = 'A';
       else if (position.x < (aOffset + 8) + (1 * 12)) letters[strlen(letters)] = 'S';
       else if (position.x < (aOffset + 8) + (2 * 12)) letters[strlen(letters)] = 'D';
       else if (position.x < (aOffset + 8) + (3 * 12)) letters[strlen(letters)] = 'F';
@@ -116,7 +116,7 @@ int loop_joystick() {
       else if (position.x < (aOffset + 8) + (8 * 12)) letters[strlen(letters)] = 'L';
     }
     else if (position.y < vertOffset + 43 && position.x > zOffset - 3) {
-      if (position.x < zOffset + 8) letters[strlen(letters)] = 'Z';
+           if (position.x < zOffset + 8) letters[strlen(letters)] = 'Z';
       else if (position.x < (zOffset + 8) + (1 * 12)) letters[strlen(letters)] = 'X';
       else if (position.x < (zOffset + 8) + (2 * 12)) letters[strlen(letters)] = 'C';
       else if (position.x < (zOffset + 8) + (3 * 12)) letters[strlen(letters)] = 'V';

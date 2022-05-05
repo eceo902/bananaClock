@@ -82,15 +82,22 @@ void setup(){
     ESP.restart(); // restart the ESP (proper way)
   }
 
+  // For the buttons
   pinMode(45, INPUT_PULLUP); // first button
   pinMode(39, INPUT_PULLUP); // second button
   pinMode(38, INPUT_PULLUP); // third button
   pinMode(34, INPUT_PULLUP); // fourth button
 
+  // For the regular speakers
   pinMode(14, OUTPUT);
   ledcSetup(0, 200, 12);//12 bits of PWM precision
   ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
   ledcAttachPin(14, 0);
+
+  // For the horn
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
+
 
   // For the car motors
   pinMode(18, OUTPUT);
@@ -119,8 +126,6 @@ void loop(){
       }
 
       if (button34.update() != 0) {
-        digitalWrite(20, HIGH);
-        digitalWrite(21, LOW);
         masterState = 1;
         setup_joystick();
       }
