@@ -167,7 +167,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  // setup_login();
+  setup_login();
 }
 
 // void loop(){
@@ -409,6 +409,8 @@ class gameChooser {
     //}
   } else if (state == 3){
     int mathGameVal = math_loop();
+    Serial.println(mathGameVal);
+    Serial.println("printing");
     if (mathGameVal != -1){
       state = 5;
     }
@@ -434,10 +436,10 @@ void loop(){
 
   if (mainState == 0){
     mainState = 1;
-    //int loopTemp = loop_login();
-    //if (loopTemp != -1){
-    //  mainState = 1;
-    //}
+    int loopTemp = loop_login();
+    if (loopTemp != -1){
+      mainState = 1;
+    }
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
     //if (strcmp(time, "06:48") == 0) {
