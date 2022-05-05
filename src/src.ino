@@ -11,7 +11,6 @@
 //setting a time adds a +1
 //the alarm song onlly plays onece, not forever
 //if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
-char username[100];
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -35,7 +34,10 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-char username[100];
+char username[100] = "karenTesting";
+float game_time = 23;
+char game_name[100] = "math";
+char on_leaderboard[10] = "True";
 
 
 
@@ -65,8 +67,18 @@ void playmusic(){
 
 void postWinning(){
   char body[200];
-  sprintf(body, "username=%s", username);
-
+  sprintf(body, "user=%s&game_name=%s&length=%f&on_leaderboard=%s", username, game_name, game_time, on_leaderboard);
+	sprintf(request_buffer, "POST http://608dev-2.net/sandbox/sc/team41/game_data/save_game_results.py HTTP/1.1\r\n");
+	strcat(request_buffer, "Host: 608dev-2.net\r\n");
+	strcat(request_buffer, "Content-Type: application/x-www-form-urlencoded\r\n");
+	sprintf(request_buffer + strlen(request_buffer), "Content-Length: %d\r\n", strlen(body)); //append string formatted to end of request buffer
+	strcat(request_buffer, "\r\n"); //new line from header to body
+	strcat(request_buffer, body); //body
+	strcat(request_buffer, "\r\n"); //new line
+	Serial.println(request_buffer);
+	do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+	Serial.println(response_buffer); //viewable in Serial Terminal
+	//memset(letters, 0, sizeof(letters));
     
 }
 
@@ -284,12 +296,13 @@ class gameChooser {
 
     }
   } else if ((state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
-    if (millis() - game_timer >= 60000 ){
-    state = 1;
-    Serial.println("timeout, back to state 1");
-    ledcWriteTone(0, 220);
-    tft.pushImage(0, 0, 640, 480, clockImage);
-    } else if (button == 1){
+  //FIX THIS NEEDS TO BE ADDED
+    //if (millis() - game_timer >= 60000 ){
+    //state = 1;
+    //Serial.println("timeout, back to state 1");
+    //ledcWriteTone(0, 220);
+    //tft.pushImage(0, 0, 640, 480, clockImage);
+    //} else if (button == 1){
     state = 0;
     tft.fillScreen(TFT_BLACK);
     tft.println("Good morning! You have completed the game :)");
@@ -298,7 +311,7 @@ class gameChooser {
     delay(5000);
     tft.fillScreen(TFT_BLACK);
     tft.setRotation(1);
-    }
+    //}
   } else if (state == 3){
     int mathGameVal = math_loop();
     if (mathGameVal != -1){
@@ -321,12 +334,16 @@ void loop(){
   float x, y;
   get_angle(&x, &y); //get angle values
   int bv = button34.update(); //get button value
+  int bv8 = button45.update();
+
 
   if (mainState == 0){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
     //if (strcmp(time, "06:48") == 0) {
     musicIndex = activeAlarm1();
-    if (musicIndex != -1){
+
+    //DELETE SECOND PART OF IF
+    if ((musicIndex != -1) || (bv8 == 1)){
       Serial.println("ALARM RINGING");
       
     mainState = 1;
