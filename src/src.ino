@@ -203,7 +203,7 @@ class gameChooser {
         
         //ADD CLOCK BACKGROUND
         tft.setSwapBytes(true); 
-        tft.pushImage(0, 0, 640, 480, clockImage);
+        //tft.pushImage(0, 0, 640, 480, clockImage);
         tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
@@ -215,7 +215,8 @@ class gameChooser {
           stop_car();
           Serial.println("Pressing button, deactivating alarm, moving to state 2");
           state = 2;
-          tft.pushImage(0, 0, 480, 320, test);
+          tft.fillScreen(TFT_BLACK);
+          //tft.pushImage(0, 0, 480, 320, test);
           tft.setCursor(10, 40);
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.drawString(" Choose Your Game:", 0,  20, 2);
@@ -260,7 +261,9 @@ class gameChooser {
         } else if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
           state = 1;
           ledcWriteTone(0, 220);
-          tft.pushImage(0, 0, 640, 480, clockImage);
+          //tft.pushImage(0, 0, 640, 480, clockImage);
+          tft.fillScreen(TFT_BLACK);
+          
   
       } else if (scroll_threshold<=millis()-scroll_timer){
         scroll_timer=millis();
@@ -385,12 +388,12 @@ void loop(){
   int bv8 = button45Testing.update();
 
   if (mainState == 0){
-    int loopTemp = loop_login();
-    if (loopTemp != -1){
+    //int loopTemp = loop_login();
+    //if (loopTemp != -1){
       mainState = 1;
       loggedIn = true;
       setup_clock();
-    }
+    //}
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
