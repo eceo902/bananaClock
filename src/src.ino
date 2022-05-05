@@ -57,6 +57,7 @@ char network[] = "MIT GUEST";
 char password[] = "";
 
 Button button45(45);
+Button button45Testing(45);
 Button button39(39);
 Button button38(38);
 Button button34(34);
@@ -432,12 +433,13 @@ void loop(){
   get_angle(&x, &y); //get angle values
   int bv = button34.update(); //get button value
   button39.read(); //get button value
-  int bv8 = button45.update();
+  int bv8 = button45Testing.update();
 
   if (mainState == 0){
     int loopTemp = loop_login();
     if (loopTemp != -1){
       mainState = 1;
+      loggedIn = true;
     }
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
