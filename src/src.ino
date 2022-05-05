@@ -435,7 +435,6 @@ void loop(){
   int bv8 = button45.update();
 
   if (mainState == 0){
-    mainState = 1;
     int loopTemp = loop_login();
     if (loopTemp != -1){
       mainState = 1;
