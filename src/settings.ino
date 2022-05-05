@@ -23,7 +23,6 @@ char alarm5Time[8];
 const int maxAlarmNums = 5;
 char *setting_alarms[maxAlarmNums] = {alarm1Time, alarm2Time, alarm3Time, alarm4Time, alarm5Time}; //https://www.javatpoint.com/cpp-array-of-pointers
 
-char username[] = "ccunning"; // temp username for now 
 // user username[] array instead of this
 
 TimeGetter tg;
@@ -213,9 +212,9 @@ int handle_settings()
   }
   if (setting_state == DISP)
   {
-    // if (button34.update() == 1) { // exit settings
-    //     return 1;
-    //   }
+    if (button34.update() == 1) { // exit settings
+        return 1;
+      }
 
     if (button39.update() == 1) { // LOGOUT of program, post alarms to database        
         return update_db_alarms();
@@ -306,7 +305,7 @@ void display_alarms()
     else{
       tft.println("Max Alarms Set!");
     }
-    //tft.println("Button34: Back to Clock");
+    tft.println("Button34: Back to Clock");
     if (currNumberAlarms != 0){
       tft.println("Button38: modify Alarm");
     }
