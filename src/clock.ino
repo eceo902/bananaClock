@@ -57,6 +57,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
         military_state = MILITARY;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
+        print_weather();
       }
       break;
     case MILITARY:
@@ -64,6 +65,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
         military_state = STANDARD;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
+        print_weather();
       }
   }
 
@@ -73,6 +75,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
         style_state = HOUR_MINUTE_SECOND;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
+        print_weather();
       }        
       break; //don't forget break statements
     case HOUR_MINUTE_SECOND:
@@ -80,6 +83,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
         style_state = HOUR_MINUTE;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
+        print_weather();
       }
   }
 
@@ -253,11 +257,10 @@ const char PREFIX[] = "{\"wifiAccessPoints\": ["; //beginning of json body
 const char SUFFIX[] = "]}"; //suffix to POST request
 const char API_KEY[] = "AIzaSyAQ9SzqkHhV-Gjv-71LohsypXUH447GWX8"; //don't change this and don't share this
 const char WEATHER_API_KEY[] = "49c9ca83af65274dfefed933ba2ba723";
-WiFiClientSecure client; //global WiFiClient Secure object  
-WiFiClient client2; //global WiFiClient Secure object
 const int MAX_APS = 5;
-uint8_t button_state; //used for containing button state and detecting edges
-int old_button_state; //used for detecting button edges
+
+char request[3500];
+char google_json_body[3000];
 uint32_t time_since_sample;      // used for microsecond timing
 uint8_t channel = 1; //network channel on 2.4 GHz
 byte bssid[] = {0x04, 0x95, 0xE6, 0xAE, 0xDB, 0x41}; //6 byte MAC address of AP you're targeting.
@@ -266,7 +269,7 @@ uint32_t timer;
 char units[10] = "Imperial";
 
 void print_weather(){
-    int offset = sprintf(json_body, "%s", PREFIX);
+    int offset = sprintf(google_json_body, "%s", PREFIX);
     int n = WiFi.scanNetworks(); //run a new scan. could also modify to use original scan from setup so quicker (though older info)
     Serial.println("scan done");
     if (n == 0) {
@@ -275,14 +278,14 @@ void print_weather(){
       int max_aps = max(min(MAX_APS, n), 1);
       for (int i = 0; i < max_aps; ++i) { //for each valid access point
         uint8_t* mac = WiFi.BSSID(i); //get the MAC Address
-        offset += wifi_object_builder(json_body + offset, JSON_BODY_SIZE-offset, WiFi.channel(i), WiFi.RSSI(i), WiFi.BSSID(i)); //generate the query
+        offset += wifi_object_builder(google_json_body + offset, 3500-offset, WiFi.channel(i), WiFi.RSSI(i), WiFi.BSSID(i)); //generate the query
         if(i!=max_aps-1){
-          offset +=sprintf(json_body+offset,",");//add comma between entries except trailing.
+          offset +=sprintf(google_json_body+offset,",");//add comma between entries except trailing.
         }
       }
-      sprintf(json_body + offset, "%s", SUFFIX);
-      Serial.println(json_body);
-      int len = strlen(json_body);
+      sprintf(google_json_body + offset, "%s", SUFFIX);
+      Serial.println(google_json_body);
+      int len = strlen(google_json_body);
       // Make a HTTP request:
       Serial.println("SENDING REQUEST");
       request[0] = '\0'; //set 0th byte to null
@@ -292,8 +295,8 @@ void print_weather(){
       offset += sprintf(request + offset, "Content-Type: application/json\r\n");
       offset += sprintf(request + offset, "cache-control: no-cache\r\n");
       offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", len);
-      offset += sprintf(request + offset, "%s\r\n", json_body);
-      do_https_request(SERVER, request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
+      offset += sprintf(request + offset, "%s\r\n", google_json_body);
+      do_https_request(SERVER, request, response, 1000, RESPONSE_TIMEOUT, false);
       Serial.println("-----------");
       Serial.println(response);
       Serial.println("-----------");
@@ -315,14 +318,14 @@ void print_weather(){
 			Serial.println(response);
 			Serial.println("-----------");
 
-      char* start = strchr(response, '{');
-      char* end = strrchr(response, '}');
+      start = strchr(response, '{');
+      end = strrchr(response, '}');
 
       deserializeJson(doc, start, end-start+1);
-      char main[50] = doc["weather"]["main"];
-      char temp[50] = doc["main"]["temp"];
+      char main[50] = {doc["weather"]["main"]};
+      char temp[50] = {doc["main"]["temp"]};
       tft.setTextSize(2);
       tft.println(main);
       tft.println(temp);
-
+    }
 }
