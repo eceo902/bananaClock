@@ -202,8 +202,10 @@ class gameChooser {
         Serial.println("Alarm ringing, starting state 1");
         
         //ADD CLOCK BACKGROUND
-        tft.setSwapBytes(true); 
+       // tft.setSwapBytes(true); 
         //tft.pushImage(0, 0, 640, 480, clockImage);
+        tft.fillScreen(TFT_BLACK);
+      tft.println("Alarm Ringing");
         tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
@@ -217,6 +219,7 @@ class gameChooser {
           state = 2;
           tft.fillScreen(TFT_BLACK);
           //tft.pushImage(0, 0, 480, 320, test);
+          
           tft.setCursor(10, 40);
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.drawString(" Choose Your Game:", 0,  20, 2);
@@ -262,6 +265,8 @@ class gameChooser {
           state = 1;
           ledcWriteTone(0, 220);
           //tft.pushImage(0, 0, 640, 480, clockImage);
+
+      tft.println("Alarm Ringing");
           tft.fillScreen(TFT_BLACK);
           
   
@@ -403,6 +408,8 @@ void loop(){
     //DELETE SECOND PART OF IF
     if ((musicIndex != -1) || (bv8 != 0)){
       Serial.println("ALARM RINGING");
+      tft.fillScreen(TFT_BLACK);
+      tft.println("Alarm Ringing");
       setup_car();
       
     mainState = 2;
