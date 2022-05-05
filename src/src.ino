@@ -16,6 +16,7 @@ WiFiClient client2; //global WiFiClient Secure object
 //setting a time adds a +1
 //the alarm song onlly plays onece, not forever
 //if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
+//make sure all games actually restart if they take too long
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -29,6 +30,7 @@ unsigned long game_timer;
 int mainState = 0;
 
 char username[200];  // global variable for username
+char shareData[] = "True";
 
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
@@ -41,7 +43,7 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-// char username[100] = "karenTesting";
+ char username[200] = "karenTesting";
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True";
@@ -93,6 +95,8 @@ void postWinning(){
 }
 
 void setup(){
+  analogReadResolution(12);
+
   tft.init();  //init screen
   tft.setRotation(1); //adjust rotation
   tft.fillScreen(TFT_BLACK); //fill background
@@ -302,6 +306,7 @@ class gameChooser {
 		
           tft.fillScreen(TFT_BLACK);
           tft.setCursor(10, 40);
+          game_timer = millis();
           if (game_index == 2){
             tft.println("Playing the Math Game!");
             math_setup();
@@ -396,6 +401,10 @@ class gameChooser {
     delay(5000);
     tft.fillScreen(TFT_BLACK);
     tft.setRotation(1);
+    game_time = (millis() - game_timer)/1000;
+    Serial.println(game_time);
+    postWinning();
+    
     //}
   } else if (state == 3){
     int mathGameVal = math_loop();
@@ -405,8 +414,9 @@ class gameChooser {
   } else if (state == 4){
     int currentJumpGame = playjumpgame();
     if (currentJumpGame != -1){
+      //postWinning();
       state = 5;
-      postWinning();
+      
     }
   }
 }
