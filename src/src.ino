@@ -287,6 +287,7 @@ class gameChooser {
       } else if (state == 1){
 
         if (button == 1){ //DEACTIVATING THE ALARM
+          stop_car();
           Serial.println("Pressing button, deactivating alarm, moving to state 2");
           state = 2;
           tft.pushImage(0, 0, 480, 320, test);
@@ -298,9 +299,13 @@ class gameChooser {
           tft.println("   Jumping");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Maze");
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.println("   Cypher");
           ledcWriteTone(0, 0);
 
           game_timer = millis();
+        } else {
+          loop_car();
         }
       } else if (state == 2){ //GAME SELECTION
 
@@ -309,7 +314,7 @@ class gameChooser {
           tft.fillScreen(TFT_BLACK);
           tft.setCursor(10, 40);
           game_timer = millis();
-          if (game_index == 2){
+          if (game_index == 3){
             tft.println("Playing the Math Game!");
             math_setup();
             state = 3;
@@ -317,9 +322,12 @@ class gameChooser {
             tft.println("Playing the Jumping Game!");
             state = 4;
             jump_setup();            
-          } else {
+          } else if (game_index == 1){
             tft.println("Playing the Maze Game!");
             state = 5;
+          } else {
+            tft.println("Playing Cypher!");
+            state = 6;
           }
           game_index=0;
           scroll_timer=millis();
@@ -334,7 +342,7 @@ class gameChooser {
         bool changed = true;
         if (angle_threshold <= angle){
 
-          if(game_index>=2){
+          if(game_index>=3){
             game_index=0;
           }else{
             game_index+=1;	
@@ -342,7 +350,7 @@ class gameChooser {
 
         } else if(angle<=-angle_threshold){ //CHANGING GAME SELETIONG
           if(game_index<=0){
-              game_index=2;
+              game_index=3;
           }else{
               game_index-=1;
           }   
@@ -361,6 +369,8 @@ class gameChooser {
           tft.println("   Jumping");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Maze");
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.println("   Cypher");
       } else if (game_index == 1){
 
           //tft.fillScreen(TFT_BLACK);
@@ -372,7 +382,9 @@ class gameChooser {
           tft.println("   Jumping");
           tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
           tft.println("   Maze");
-      } else {
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.println("   Cypher");
+      } else if (game_index == 3){
           //tft.fillScreen(TFT_BLACK);
           tft.setCursor(10, 40);
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
@@ -382,12 +394,24 @@ class gameChooser {
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Jumping");
           tft.println("   Maze");
+          tft.println("   Cypher");
+      } else {
+        tft.setCursor(10, 40);
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.drawString(" Choose Your Game:", 0, 20, 2);
+          tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+          tft.println("   Math");
+          
+          tft.println("   Jumping");
+          tft.println("   Maze");
+          tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
+          tft.println("   Cypher");
       }
     }
 
 
     }
-  } else if ((state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
+  } else if ((state == 5) || (state == 6)){ //SEPARATE THIS AS GAMES ARE DONE
   //FIX THIS NEEDS TO BE ADDED
     //if (millis() - game_timer >= 60000 ){
     //state = 1;
@@ -442,6 +466,7 @@ void loop(){
       loggedIn = true;
       setup_clock();
     }
+
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
     //if (strcmp(time, "06:48") == 0) {
@@ -450,6 +475,7 @@ void loop(){
     //DELETE SECOND PART OF IF
     if ((musicIndex != -1) || (bv8 != 0)){
       Serial.println("ALARM RINGING");
+      setup_car();
       
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep

@@ -361,8 +361,8 @@ void get_weather(){
       deserializeJson(doc, start, end-start+1);
       sprintf(weather, doc["weather"][0]["main"]);
       char str_temp[10];
-      dtostrf(doc["main"]["temp"], 1, 3, str_temp);
-      sprintf(temp, "%s ", str_temp);
+      dtostrf(doc["main"]["temp"], 1, 1, str_temp);
+      sprintf(temp, "%s%c", str_temp,248); //weird thing is degree symbol 
       //sprintf(temp, atoi(doc["main"]["temp"]));
       Serial.println(weather);
       Serial.println(temp);
