@@ -11,6 +11,7 @@
 //setting a time adds a +1
 //the alarm song onlly plays onece, not forever
 //if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
+//make sure all games actually restart if they take too long
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -217,6 +218,7 @@ class gameChooser {
 		
           tft.fillScreen(TFT_BLACK);
           tft.setCursor(10, 40);
+          game_timer = millis();
           if (game_index == 2){
             tft.println("Playing the Math Game!");
             math_setup();
@@ -311,6 +313,8 @@ class gameChooser {
     delay(5000);
     tft.fillScreen(TFT_BLACK);
     tft.setRotation(1);
+    //game_time = (millis() - game_timer)/1000;
+    
     //}
   } else if (state == 3){
     int mathGameVal = math_loop();
@@ -320,8 +324,9 @@ class gameChooser {
   } else if (state == 4){
     int currentJumpGame = playjumpgame();
     if (currentJumpGame != -1){
-      state = 5;
       postWinning();
+      state = 5;
+      
     }
   }
 }
