@@ -11,6 +11,7 @@
 //setting a time adds a +1
 //the alarm song onlly plays onece, not forever
 //if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
+char[100] username;
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -63,7 +64,7 @@ void playmusic(){
 
 void postWinning(){
   char body[200];
-  sprintf(body, "username=%s", letters);
+  sprintf(body, "username=%s", username);
     
 }
 
