@@ -21,6 +21,27 @@ uint8_t military_state;
 unsigned long query_timer;
 unsigned long power_timer;
 unsigned long blink_timer;
+unsigned long weather_timer;
+unsigned long location_timer;
+
+const char PREFIX[] = "{\"wifiAccessPoints\": ["; //beginning of json body
+const char SUFFIX[] = "]}"; //suffix to POST request
+const char API_KEY[] = "AIzaSyAQ9SzqkHhV-Gjv-71LohsypXUH447GWX8"; //don't change this and don't share this
+const char WEATHER_API_KEY[] = "49c9ca83af65274dfefed933ba2ba723";
+const int MAX_APS = 5;
+
+char request[3500];
+char google_json_body[3000];
+uint32_t time_since_sample;      // used for microsecond timing
+uint8_t channel = 1; //network channel on 2.4 GHz
+byte bssid[] = {0x04, 0x95, 0xE6, 0xAE, 0xDB, 0x41}; //6 byte MAC address of AP you're targeting.
+char*  SERVER = "googleapis.com";  // Server URL
+uint32_t timer;
+char units[10] = "Imperial";
+char weather[50];
+char temp[50];
+double lat;
+double lon;
 
 void setup_clock() {   // this is called when transitioning to clock state
   tft.setRotation(2); //adjust rotation
@@ -39,6 +60,10 @@ void setup_clock() {   // this is called when transitioning to clock state
 
   query_timer = millis();
   blink_timer = millis(); // we also need to reset the blink timer so no drifting
+  weather_timer = millis();
+  location_timer = millis();
+  get_location();
+  get_weather();
 }
 
 char* loop_clock() {   // this is called when we remain in the clock state
@@ -50,6 +75,14 @@ char* loop_clock() {   // this is called when we remain in the clock state
   y = imu.accelCount[1] * imu.aRes;
   z = imu.accelCount[2] * imu.aRes;
   acc_magg = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+  if(millis() - weather_timer > 30000){ //refresh weather every half a minute
+    weather_timer = millis();
+    get_weather();    
+  }
+  if(millis() - location_timer > 300000){ //refresh weather every half a minute
+    location_timer = millis();
+    get_location();    
+  }
 
   switch(military_state) {
     case STANDARD:
@@ -57,7 +90,10 @@ char* loop_clock() {   // this is called when we remain in the clock state
         military_state = MILITARY;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
-        print_weather();
+        tft.setTextSize(1);
+        tft.println(weather);
+        tft.println(temp);
+        
       }
       break;
     case MILITARY:
@@ -65,7 +101,9 @@ char* loop_clock() {   // this is called when we remain in the clock state
         military_state = STANDARD;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
-        print_weather();
+        tft.setTextSize(1);
+        tft.println(weather);
+        tft.println(temp);
       }
   }
 
@@ -75,7 +113,9 @@ char* loop_clock() {   // this is called when we remain in the clock state
         style_state = HOUR_MINUTE_SECOND;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
-        print_weather();
+        tft.setTextSize(1);
+        tft.println(weather);
+        tft.println(temp);
       }        
       break; //don't forget break statements
     case HOUR_MINUTE_SECOND:
@@ -83,7 +123,9 @@ char* loop_clock() {   // this is called when we remain in the clock state
         style_state = HOUR_MINUTE;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
-        print_weather();
+        tft.setTextSize(1);
+        tft.println(weather);
+        tft.println(temp);
       }
   }
 
@@ -253,23 +295,8 @@ void print_time() {
   }
 } 
 
-const char PREFIX[] = "{\"wifiAccessPoints\": ["; //beginning of json body
-const char SUFFIX[] = "]}"; //suffix to POST request
-const char API_KEY[] = "AIzaSyAQ9SzqkHhV-Gjv-71LohsypXUH447GWX8"; //don't change this and don't share this
-const char WEATHER_API_KEY[] = "49c9ca83af65274dfefed933ba2ba723";
-const int MAX_APS = 5;
-
-char request[3500];
-char google_json_body[3000];
-uint32_t time_since_sample;      // used for microsecond timing
-uint8_t channel = 1; //network channel on 2.4 GHz
-byte bssid[] = {0x04, 0x95, 0xE6, 0xAE, 0xDB, 0x41}; //6 byte MAC address of AP you're targeting.
-char*  SERVER = "googleapis.com";  // Server URL
-uint32_t timer;
-char units[10] = "Imperial";
-
-void print_weather(){
-    int offset = sprintf(google_json_body, "%s", PREFIX);
+void get_location(){
+int offset = sprintf(google_json_body, "%s", PREFIX);
     int n = WiFi.scanNetworks(); //run a new scan. could also modify to use original scan from setup so quicker (though older info)
     Serial.println("scan done");
     if (n == 0) {
@@ -306,26 +333,35 @@ void print_weather(){
 
       DynamicJsonDocument doc(1024);
       deserializeJson(doc, start, end-start+1);
-      double lat = doc["location"]["lat"];
-      double lon = doc["location"]["lng"];
-
+      lat = doc["location"]["lat"];
+      lon = doc["location"]["lng"];
+  }
+}
+void get_weather(){
+    
+      char str[100];
+      sprintf(str, "lat %f, lon %f", lat, lon);
+      Serial.println(str);
       char request_buffer[500];
-			sprintf(request_buffer, "GET /data/2.5/weather?lat=%d&lon=%d&appid=%s&units=%s HTTP/1.1\r\n", lat, lon, WEATHER_API_KEY, units);
+			sprintf(request_buffer, "GET /data/2.5/weather?lat=%f&lon=%f&appid=%s&units=%s HTTP/1.1\r\n", lat, lon, WEATHER_API_KEY, units);
 			strcat(request_buffer, "Host: api.openweathermap.org\r\n");
 			strcat(request_buffer, "\r\n"); // new line from header to body
 			do_http_request("api.openweathermap.org", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+      Serial.println(request_buffer);
 			Serial.println("-----------");
 			Serial.println(response);
 			Serial.println("-----------");
 
-      start = strchr(response, '{');
-      end = strrchr(response, '}');
-
+      char* start = strchr(response, '{');
+      char* end = strrchr(response, '}');
+      DynamicJsonDocument doc(1024);
       deserializeJson(doc, start, end-start+1);
-      char main[50] = {doc["weather"]["main"]};
-      char temp[50] = {doc["main"]["temp"]};
-      tft.setTextSize(2);
-      tft.println(main);
-      tft.println(temp);
-    }
+      sprintf(weather, doc["weather"][0]["main"]);
+      char str_temp[10];
+      dtostrf(doc["main"]["temp"], 1, 3, str_temp);
+      sprintf(temp, "%s deg", str_temp);
+      //sprintf(temp, atoi(doc["main"]["temp"]));
+      Serial.println(weather);
+      Serial.println(temp);
+    
 }
