@@ -4,6 +4,11 @@
 #include <SPI.h> //Used in support of TFT Display
 #include <string.h>  //used for some string handling and processing.
 #include "Button.h"
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
+
+WiFiClientSecure client; //global WiFiClient Secure object
+WiFiClient client2; //global WiFiClient Secure object
 #include "images.h"
 //CURRENT BUGS
 //I think the timout after 1 min doesn't play the right music
@@ -24,6 +29,9 @@ bool blocked = false;
 unsigned long game_timer;
 int mainState = 0;
 
+char shareData[] = "True";
+char username[200];  // global variable for username
+
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
 const int GETTING_PERIOD = 2000; //periodicity of getting a number fact.
@@ -35,12 +43,15 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-char username[100] = "karenTesting";
+// char username[100] = "karenTesting";
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True";
 
-
+int masterState;
+const int IN_CLOCK = 0;
+const int IN_SETTINGS = 2;
+bool loggedIn;
 
 char network[] = "MIT GUEST";
 char password[] = "";
@@ -50,7 +61,7 @@ Button button39(39);
 Button button38(38);
 Button button34(34);
 
-boolean hasRung;
+bool hasRung;
 void playmusic(){
   if (musicIndex == 0){
     pirates();
@@ -150,12 +161,87 @@ void setup(){
   pinMode(20, OUTPUT);
   pinMode(21, OUTPUT);
   game_timer=millis();
-
   setup_clock();
-  setup_settings();
+
+  hasRung = false;
+  loggedIn = false; // user has not logged in when program runs
 }
 
+// void loop(){
+//   switch(masterState) {
+//     case IN_SETTINGS:
+//     {
+//       int result = handle_settings(); // how to leave settings after running code
 
+//       if (result == 1 || result == 2) { // exit settings
+//         masterState = IN_CLOCK;
+//         tft.fillScreen(TFT_BLACK);
+
+//         if (result == 2){
+//           loggedIn=false;
+//         }
+//       }
+//       break;
+//     }
+//     case IN_CLOCK: 
+//     {
+//       char* time = loop_clock();
+//       if (strcmp(time, "20:53") == 0 && !hasRung) {
+//         ledcWriteTone(0, 220);
+//         hasRung = true;
+//       }
+//       if (button39.update() != 0) {
+//         ledcWriteTone(0, 0);
+//       }
+
+//       if (button34.update() != 0) {
+//         masterState = 1;
+//         // setup_joystick();
+//       }
+
+//       if (button38.update() != 0) {
+//         Serial.println("REACHED");
+//         goto_settings();
+//         if (!loggedIn){ // TODO: change so only go to settings after login
+//           Serial.println("REACHED");
+//           setup_settings();
+//           loggedIn = true;
+//         }
+//         masterState = IN_SETTINGS;
+//       }
+
+//       break;
+//     }
+//     case 1: {
+//         // pull alarms for current user & update that
+
+//         // bool hasSubmitted = loop_joystick(letters);
+//         // if (hasSubmitted) 
+//         // {
+//         //   // use test username "ccunning"
+//         //   // if hasSubmitted, 34 makes sense for settings, w/in settings have logoff
+//         //   // bunch of cases, transition between
+//         //   char body[100]; //for body
+//         //   sprintf(body, "username=%s", letters);
+//         //   sprintf(request_buffer, "POST http://608dev-2.net/sandbox/sc/team41/login/esp_login.py HTTP/1.1\r\n");
+//         //   strcat(request_buffer, "Host: 608dev-2.net\r\n");
+//         //   strcat(request_buffer, "Content-Type: application/x-www-form-urlencoded\r\n");
+//         //   sprintf(request_buffer + strlen(request_buffer), "Content-Length: %d\r\n", strlen(body)); //append string formatted to end of request buffer
+//         //   strcat(request_buffer, "\r\n"); //new line from header to body
+//         //   strcat(request_buffer, body); //body
+//         //   strcat(request_buffer, "\r\n"); //new line
+//         //   Serial.println(request_buffer);
+//         //   do_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+//         //   Serial.println(response_buffer); //viewable in Serial Terminal
+//         //   tft.fillScreen(TFT_BLACK);
+//         //   tft.setCursor(0, 0, 1);
+//         //   tft.println(response_buffer);
+//         //   sprintf(username, letters);
+//         //   memset(letters, 0, sizeof(letters));
+//         }
+//       if (button34.update() != 0) {
+//         masterState = 0;
+//         setup_clock();
 
 //used to get x,y values from IMU accelerometer!
 void get_angle(float* x, float* y) {
@@ -334,13 +420,12 @@ class gameChooser {
 gameChooser wg; //wikipedia object
 
 
-
 void loop(){
   float x, y;
   get_angle(&x, &y); //get angle values
   int bv = button34.update(); //get button value
+  button39.read(); //get button value
   int bv8 = button45.update();
-
 
   if (mainState == 0){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
@@ -354,7 +439,14 @@ void loop(){
     mainState = 1;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
     Serial.println("in here");
-    } else if (bv == 1){
+    // go into settings
+    } else if (button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+      button39.button_change_time = millis();     
+      goto_settings();
+      if (!loggedIn){
+        get_alarms_user(); // pull users' alarms from db
+        loggedIn = true;
+      }
       mainState = 2;
     }
   } else if (mainState == 1){ //ALARM ACTIVATED
@@ -363,10 +455,15 @@ void loop(){
 
   } else if (mainState == 2){ //SETTINGS PAGE
     tft.setTextSize(1.5);
-    handle_settings();
-    if (bv == 1){
+    loggedIn = true;
+    int result = handle_settings();
+    if (result == 1 || result == 2) { // exit settings
       mainState = 0;
       tft.fillScreen(TFT_BLACK);
+
+      if (result == 2){
+        loggedIn = false;
+      }
     }
   }
 
