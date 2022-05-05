@@ -165,7 +165,6 @@ void setup(){
   pinMode(20, OUTPUT);
   pinMode(21, OUTPUT);
   game_timer=millis();
-  setup_clock();
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
@@ -445,13 +444,15 @@ void loop(){
     tft.setTextSize(1.5);
     loggedIn = true;
     int result = handle_settings();
-    if (result == 1 || result == 2) { // exit settings
+    if (result == 1) {
       mainState = 1;
-      tft.fillScreen(TFT_BLACK);
+      setup_clock();
+    }
 
-      if (result == 2){
-        loggedIn = false;
-      }
+    if (result == 2){
+      loggedIn = false;
+      mainState = 0;
+      setup_login();
     }
   }
   else if (mainState == 4){
@@ -460,7 +461,7 @@ void loop(){
       mainState = 0;
       setup_login();    
     }
-    else if (bv != 0){
+    else if (button34.update() != 0){
       mainState = 1;
       setup_clock();
     }
