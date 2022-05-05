@@ -440,6 +440,7 @@ void loop(){
     if (loopTemp != -1){
       mainState = 1;
       loggedIn = true;
+      setup_clock();
     }
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
@@ -447,13 +448,13 @@ void loop(){
     musicIndex = activeAlarm1();
 
     //DELETE SECOND PART OF IF
-    if ((musicIndex != -1) || (bv8 == 1)){
+    if ((musicIndex != -1) || (bv8 != 0)){
       Serial.println("ALARM RINGING");
       
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
     // go into settings
-     } else if (button39.update() == 1){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+     } else if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
       // button39.button_change_time = millis();     
       goto_settings();
       if (!loggedIn){
@@ -462,7 +463,7 @@ void loop(){
       }
       mainState = 3;
     }
-    else if (button34.update() == 1){ // USER SETTINGS
+    else if (button34.update() != 0){ // USER SETTINGS
       mainState = 4; 
     }
   } 
@@ -488,6 +489,10 @@ void loop(){
     if (result == 1){
       mainState = 0;
       tft.fillScreen(TFT_BLACK);      
+    }
+    else if (button34.update() != 0){
+      mainState = 1;
+      setup_clock();
     }
   }
 }   
