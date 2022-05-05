@@ -213,23 +213,17 @@ int handle_settings()
   }
   if (setting_state == DISP)
   {
-    button34.read();
-    if (button34.button_pressed && millis() - button34.button_change_time  != 0) { // exit settings
-        button34.button_change_time = millis();
+    if (button34.update() == 1) { // exit settings
         return 1;
       }
 
-    button39.read();
-    if (button39.button_pressed && millis() - button39.button_change_time  >= 100) { // LOGOUT of program, post alarms to database        
-        button39.button_change_time = millis();
+    if (button39.update() == 1) { // LOGOUT of program, post alarms to database        
         return update_db_alarms();
     }
 
     // ADD NEW ALARM
-    button45.read();
-    if (button45.button_pressed && millis() - button45.button_change_time > BUTTON_PRESS_BUFFER && currNumberAlarms < maxAlarmNums)
+    if (button45.update() == 1 && currNumberAlarms < maxAlarmNums)
     {
-      button45.button_change_time = millis();
       hour = 1;
       mins = 0;
       music_option = 0;
@@ -238,10 +232,8 @@ int handle_settings()
     }
 
     // MODIFY ALARM
-    button38.read();
-    if (button38.button_pressed && millis() - button38.button_change_time > BUTTON_PRESS_BUFFER && currNumberAlarms > 0)
+    if (button38.update() == 1 && currNumberAlarms > 0)
     {
-      button38.button_change_time = millis();
       modAlarmNumber = 0;
       setting_state = MODIFY;
       alarm_choice_prints();
@@ -252,29 +244,23 @@ int handle_settings()
     modify_alarm_2(currNumberAlarms);
   }
   if (setting_state == MODIFY){
-    button39.read();
-    if (button39.button_pressed && millis() - button39.button_change_time > BUTTON_PRESS_BUFFER)
+    if (button39.update() == 1)
     {
-      button39.button_change_time = millis();
       modAlarmNumber+=1;
       if (modAlarmNumber == currNumberAlarms){
         modAlarmNumber = 0;        
       }
       alarm_choice_prints();
     }
-    button34.read();
-    if (button34.button_pressed && millis() - button38.button_change_time > BUTTON_PRESS_BUFFER)
+    if (button34.update() == 1)
     {
-      button34.button_change_time = millis();
       hour = 1;
       mins = 0;
       music_option = 0;
       setting_state = MODIFY_ALARM;
     }
-    button45.read();
-    if (button45.button_pressed && millis() - button45.button_change_time > BUTTON_PRESS_BUFFER)
+    if (button45.update() == 1)
     {
-      button45.button_change_time = millis();
       delete_alarm(modAlarmNumber);
       setting_state = PRINT_ALARMS;
     }
