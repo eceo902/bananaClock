@@ -28,7 +28,6 @@ bool blocked = false;
 unsigned long game_timer;
 int mainState = 0;
 
-char shareData[] = "True";
 char username[200];  // global variable for username
 
 //Some constants and some resources:
