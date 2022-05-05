@@ -457,8 +457,6 @@ void loop(){
   int bv8 = button45Testing.update();
 
   if (mainState == 0){
-    //int loopTemp = loop_login();
-    //if (loopTemp != -1){
       mainState = 1;
       loggedIn = true;
       setup_clock();
