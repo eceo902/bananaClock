@@ -30,7 +30,7 @@ unsigned long game_timer;
 int mainState = 0;
 
 char shareData[] = "True";
-char username[200];  // global variable for username
+
 
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
@@ -43,7 +43,7 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-// char username[100] = "karenTesting";
+ char username[200] = "karenTesting";
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True";
@@ -399,7 +399,9 @@ class gameChooser {
     delay(5000);
     tft.fillScreen(TFT_BLACK);
     tft.setRotation(1);
-    //game_time = (millis() - game_timer)/1000;
+    game_time = (millis() - game_timer)/1000;
+    Serial.println(game_time);
+    postWinning();
     
     //}
   } else if (state == 3){
@@ -410,7 +412,7 @@ class gameChooser {
   } else if (state == 4){
     int currentJumpGame = playjumpgame();
     if (currentJumpGame != -1){
-      postWinning();
+      //postWinning();
       state = 5;
       
     }
