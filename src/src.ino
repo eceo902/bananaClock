@@ -71,6 +71,8 @@ void postWinning(){
 }
 
 void setup(){
+  analogReadResolution(12);
+
   tft.init();  //init screen
   tft.setRotation(1); //adjust rotation
   tft.fillScreen(TFT_BLACK); //fill background

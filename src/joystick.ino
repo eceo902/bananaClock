@@ -69,6 +69,8 @@ void setup_joystick() {
   tft.setTextSize(1);
   tft.fillScreen(BACKGROUND);
 
+  memset(letters, 0, sizeof(letters));  // Clear the letters
+
   i = 0;
   tft.fillCircle(position.x, position.y, RADIUS, BALL_COLOR); //draw new ball location
   
