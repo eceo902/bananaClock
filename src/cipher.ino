@@ -43,6 +43,10 @@ int key[keyLength];
 // int button1_state = 0;
 // int button2_state = 0;
 // int button3_state = 0;
+Button cipherbutton45(45);
+Button cipherbutton39(39);
+Button cipherbutton38(38);
+Button cipherbutton34(34);
 boolean cipherbutton1_click = false;
 boolean cipherbutton2_click = false;
 boolean cipherbutton3_click = false;
@@ -128,10 +132,10 @@ void cipher_setup()
 int cipher_loop()
 {
 
-	cipherbutton1_click = button45.update() != 0;
-	cipherbutton2_click = button39.update() != 0;
-	cipherbutton3_click = button34.update() != 0;
-	cipherbutton4_click = button38.update() != 0;
+	cipherbutton1_click = cipherbutton45.update() != 0;
+	cipherbutton2_click = cipherbutton39.update() != 0;
+	cipherbutton3_click = cipherbutton34.update() != 0;
+	cipherbutton4_click = cipherbutton38.update() != 0;
 
 	char output[1000];
 	tft.setCursor(0, 0, 1);
@@ -332,7 +336,7 @@ int cipher_loop()
 			}
 			case (NORMALCIPHER):
 			{
-				key[cipherinputIndex % keyLength] = letters[0] - 'A';
+				key[cipherinputIndex % keyLength] = (letters[0] - quote[cipherinputIndex]+26)%26;
 				for (int i = 0; i <= quoteLength; i++)
 				{
 					if (quote[i] < 65 || quote[i] > 90)
@@ -401,7 +405,7 @@ int cipher_loop()
 		}
 
 		if (millis() % 1000 < 500)
-			sprintf(output, "%s            ", currquote);
+			sprintf(output, "%s             ", currquote);
 		else
 			sprintf(output, "%s             ", blink);
 		// tft.println(output);
@@ -414,6 +418,7 @@ int cipher_loop()
 		break;
 	}
 	}
+  Serial.println(letters);
 	return mode;
 }
 

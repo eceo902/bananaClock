@@ -260,7 +260,7 @@ class gameChooser {
     int game_index;
     int state;
     uint32_t scroll_timer;
-    const int scroll_threshold = 150;
+    const int scroll_threshold = 500;
     const float angle_threshold = 0.3;
   public:
 
@@ -299,7 +299,7 @@ class gameChooser {
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Maze");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
           ledcWriteTone(0, 0);
 
           game_timer = millis();
@@ -323,7 +323,8 @@ class gameChooser {
             tft.println("Playing the Maze Game!");
             state = 5;
           } else {
-            tft.println("Playing Cypher!");
+            tft.println("Playing Cipher!");
+            cipher_setup();
             state = 6;
           }
           game_index=0;
@@ -367,7 +368,7 @@ class gameChooser {
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Maze");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       } else if (game_index == 1){
 
           //tft.fillScreen(TFT_BLACK);
@@ -380,7 +381,7 @@ class gameChooser {
           tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
           tft.println("   Maze");
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       } else if (game_index == 3){
           //tft.fillScreen(TFT_BLACK);
           tft.setCursor(10, 40);
@@ -391,7 +392,7 @@ class gameChooser {
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
           tft.println("   Jumping");
           tft.println("   Maze");
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       } else {
         tft.setCursor(10, 40);
           tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
@@ -402,13 +403,13 @@ class gameChooser {
           tft.println("   Jumping");
           tft.println("   Maze");
           tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
-          tft.println("   Cypher");
+          tft.println("   Cipher");
       }
     }
 
 
     }
-  } else if ((state == 5) || (state == 6)){ //SEPARATE THIS AS GAMES ARE DONE
+  } else if ((state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
   //FIX THIS NEEDS TO BE ADDED
     //if (millis() - game_timer >= 60000 ){
     //state = 1;
@@ -434,6 +435,13 @@ class gameChooser {
     Serial.println(mathGameVal);
     Serial.println("printing");
     if (mathGameVal != -1){
+      state = 5;
+    }
+  } else if (state == 6){
+    int cipherGameVal = cipher_loop();
+    // Serial.println(cipherGameVal);
+    // Serial.println("printing");
+    if (cipherGameVal != -1){
       state = 5;
     }
   } else if (state == 4){
