@@ -6,12 +6,11 @@
 #include <ArduinoJson.h>
 #include "Button.h"
 
-
-//TFT_eSPI tft = TFT_eSPI();
-// const int SCREEN_HEIGHT = 160;
-// const int SCREEN_WIDTH = 128;
-// const int BUTTON_PIN = 45;
-// const int LOOP_PERIOD = 40;
+// TFT_eSPI tft = TFT_eSPI();
+//  const int SCREEN_HEIGHT = 160;
+//  const int SCREEN_WIDTH = 128;
+//  const int BUTTON_PIN = 45;
+//  const int LOOP_PERIOD = 40;
 
 // char network[] = "MIT"; // SSID for 6.08 Lab
 // char password[] = "";	// Password for 6.08 Lab
@@ -23,7 +22,8 @@ char quote[200];
 int quoteLength;
 char currquote[200];
 int alphabet[27] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
-int cipherinputIndex;                                                                                                                                                                                                                                                                         ;
+int cipherinputIndex;
+;
 int shift;
 const int keyLength = 6;
 int key[keyLength];
@@ -61,8 +61,9 @@ const uint8_t INSANECIPHER = 2;
 // 	{"EASYCIPHER", "NORMALCIPHER", "INSANECIPHER"};
 int cipher_difficulty = 0;
 
-void cipher_setup(){
-  tft.init();								// init screen
+void cipher_setup()
+{
+	tft.init();								// init screen
 	tft.setRotation(2);						// adjust rotation
 	tft.setTextSize(1);						// default font size
 	tft.fillScreen(TFT_BLACK);				// fill background
@@ -226,27 +227,96 @@ int cipher_loop()
 		sprintf(output, currquote);
 		Serial.println(currquote);
 		cipherinputIndex = 0;
-		tft.println(output);
+		// tft.println(output);
 		cipher_state = CIPHERSOLVING;
+		setup_joystick();
 		break;
 	}
 	case (CIPHERSOLVING):
 	{
-		if (cipherbutton1_click)
-		{
-			cipherinputIndex = (cipherinputIndex - 1 + quoteLength) % quoteLength;
-		}
-		if (cipherbutton2_click)
+		int change = loop_joystick();
+		// if (cipherbutton1_click)
+		// {
+		// 	cipherinputIndex = (cipherinputIndex - 1 + quoteLength) % quoteLength;
+		// }
+
+		// if (cipherbutton2_click)
+		if (cipherbutton3_click)
 		{
 			cipherinputIndex = (cipherinputIndex + 1) % quoteLength;
 		}
-		if (cipherbutton3_click)
+
+		// if (cipherbutton3_click)
+		// {
+
+		// 	switch (cipher_difficulty)
+		// 	{
+		// 	case (EASYCIPHER):
+		// 	{
+		// 		shift = (shift + 1) % 26;
+		// 		for (int i = 0; i <= quoteLength; i++)
+		// 		{
+		// 			if (quote[i] < 65 || quote[i] > 90)
+		// 			{
+		// 				currquote[i] = quote[i];
+		// 			}
+		// 			else
+		// 			{
+		// 				currquote[i] = (quote[i] - 'A' + shift) % 26 + 'A';
+		// 			}
+		// 		}
+		// 		break;
+		// 	}
+		// 	case (NORMALCIPHER):
+		// 	{
+		// 		key[cipherinputIndex % keyLength] = (key[cipherinputIndex % keyLength] + 1) % 26;
+		// 		for (int i = 0; i <= quoteLength; i++)
+		// 		{
+		// 			if (quote[i] < 65 || quote[i] > 90)
+		// 			{
+		// 				currquote[i] = quote[i];
+		// 			}
+		// 			else
+		// 			{
+		// 				currquote[i] = (key[i % keyLength] + quote[i] - 'A') % 26 + 'A';
+		// 			}
+		// 		}
+		// 		Serial.println(quote);
+		// 		Serial.println(currquote);
+		// 		break;
+		// 	}
+		// 	case (INSANECIPHER):
+		// 	{
+		// 		char temp = quote[cipherinputIndex];
+		// 		if (temp >= 65 && temp <= 90)
+		// 		{
+		// 			alphabet[temp - 65] = (alphabet[temp - 65] + 1) % 26;
+		// 		}
+		// 		for (int i = 0; i <= quoteLength; i++)
+		// 		{
+		// 			if (quote[i] < 65 || quote[i] > 90)
+		// 			{
+		// 				currquote[i] = quote[i];
+		// 			}
+		// 			else
+		// 			{
+		// 				currquote[i] = alphabet[quote[i] - 'A'] + 'A';
+		// 			}
+		// 		}
+		// 		Serial.println(quote);
+		// 		Serial.println(currquote);
+		// 	}
+		// 	}
+		// }
+
+		if (change == 1 && letters[0] >= 'A' && letters[0] <= 'Z' && letters[1] == '\0' && currquote[cipherinputIndex] >= 'A' && currquote[cipherinputIndex] <= 'Z')
 		{
 			switch (cipher_difficulty)
 			{
 			case (EASYCIPHER):
 			{
-				shift = (shift + 1) % 26;
+				shift = (letters[0] - quote[cipherinputIndex]+26)%26;
+
 				for (int i = 0; i <= quoteLength; i++)
 				{
 					if (quote[i] < 65 || quote[i] > 90)
@@ -262,7 +332,7 @@ int cipher_loop()
 			}
 			case (NORMALCIPHER):
 			{
-				key[cipherinputIndex % keyLength] = (key[cipherinputIndex % keyLength] + 1) % 26;
+				key[cipherinputIndex % keyLength] = letters[0] - 'A';
 				for (int i = 0; i <= quoteLength; i++)
 				{
 					if (quote[i] < 65 || quote[i] > 90)
@@ -283,7 +353,7 @@ int cipher_loop()
 				char temp = quote[cipherinputIndex];
 				if (temp >= 65 && temp <= 90)
 				{
-					alphabet[temp - 65] = (alphabet[temp - 65] + 1) % 26;
+					alphabet[temp - 65] = letters[0] - 'A';
 				}
 				for (int i = 0; i <= quoteLength; i++)
 				{
@@ -317,7 +387,7 @@ int cipher_loop()
 		if (strcmp(quote, currquote) == 0)
 		{
 			cipher_state = CIPHEROFF;
-			sprintf(output, "%s                                                                                                                                                                         ", currquote);
+			sprintf(output, "%s                                                                                  ", currquote);
 			tft.println(output);
 			int cipherTimer = millis();
 			while (millis() - cipherTimer < 2000)
@@ -328,20 +398,24 @@ int cipher_loop()
 		else
 		{
 			sprintf(output, currquote);
-			
 		}
 
 		if (millis() % 1000 < 500)
-			sprintf(output, "%s                                                                                                                                                                         ", currquote);
+			sprintf(output, "%s            ", currquote);
 		else
-			sprintf(output, "%s                                                                                                                                                                              ", blink);
-		tft.println(output);
+			sprintf(output, "%s             ", blink);
+		// tft.println(output);
+		if (strcmp(prompt, output) != 0)
+		{
+			tft.setCursor(0, 0, 1);
+			tft.println(output);
+		}
+		sprintf(prompt, output);
 		break;
 	}
 	}
 	return mode;
 }
-
 
 void updateCipherDifficulty()
 {
