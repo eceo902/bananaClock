@@ -46,7 +46,7 @@ char prompt[200];
  char username[200] = "cTesting";
 float game_time = 23;
 char game_name[100] = "math";
-char on_leaderboard[10] = "True";
+char on_leaderboard[10] = "True"; // TODO: set based on log-in by Tues 
 
 int masterState;
 const int IN_CLOCK = 0;
@@ -167,7 +167,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  setup_login();
+  // setup_login();
 }
 
 // void loop(){
@@ -462,9 +462,6 @@ void loop(){
     else if (button34.update() == 1){ // USER SETTINGS
       mainState = 4; 
     }
-  } else if (mainState == 1){ //ALARM ACTIVATED
-    wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
-
   } 
   else if (mainState == 2){ //ALARM ACTIVATED
     wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
