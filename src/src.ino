@@ -61,6 +61,7 @@ Button button45Testing(45);
 Button button39(39);
 Button button38(38);
 Button button34(34);
+Button button34Testing(34);
 
 bool hasRung;
 void playmusic(){
@@ -168,7 +169,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  //setup_login();
+  setup_login();
 }
 
 // void loop(){
@@ -455,13 +456,13 @@ gameChooser wg; //wikipedia object
 void loop(){
   float x, y;
   get_angle(&x, &y); //get angle values
-  int bv = button34.update(); //get button value
+  int bv = button34Testing.update(); //get button value
   button39.read(); //get button value
   int bv8 = button45Testing.update();
 
   if (mainState == 0){
     int loopTemp = loop_login();
-    if (loopTemp != -1){
+    if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
@@ -514,9 +515,9 @@ void loop(){
     int result = handle_user_settings();
     if (result == 1){
       mainState = 0;
-      tft.fillScreen(TFT_BLACK);      
+      setup_login();    
     }
-    else if (button34.update() != 0){
+    else if (bv != 0){
       mainState = 1;
       setup_clock();
     }
