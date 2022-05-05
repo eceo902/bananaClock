@@ -62,6 +62,11 @@ void playmusic(){
   }
 }
 
+void postWinning(){
+  char body[200];
+  sprintf(body, "username=%s", letters);
+    
+}
 
 void setup(){
   tft.init();  //init screen
@@ -205,6 +210,7 @@ class gameChooser {
           } else if(game_index == 0){
             tft.println("Playing the Jumping Game!");
             state = 4;
+            jump_setup();            
           } else {
             tft.println("Playing the Maze Game!");
             state = 5;
@@ -275,7 +281,7 @@ class gameChooser {
 
 
     }
-  } else if ((state == 4) || (state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
+  } else if ((state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
     if (millis() - game_timer >= 60000 ){
     state = 1;
     Serial.println("timeout, back to state 1");
@@ -295,6 +301,12 @@ class gameChooser {
     int mathGameVal = math_loop();
     if (mathGameVal != -1){
       state = 5;
+    }
+  } else if (state == 4){
+    int currentJumpGame = playjumpgame();
+    if (currentJumpGame != -1){
+      state = 5;
+      postWinning();
     }
   }
 }
