@@ -168,7 +168,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  setup_login();
+  //setup_login();
 }
 
 // void loop(){
@@ -436,11 +436,11 @@ void loop(){
   int bv8 = button45Testing.update();
 
   if (mainState == 0){
-    int loopTemp = loop_login();
-    if (loopTemp != -1){
+    //int loopTemp = loop_login();
+    //if (loopTemp != -1){
       mainState = 1;
       loggedIn = true;
-    }
+    //}
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
     //if (strcmp(time, "06:48") == 0) {
