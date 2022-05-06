@@ -50,7 +50,7 @@ uint8_t isJumpGameActive = 0;
 // }
 
 void jump_setup() {
-  tft.init(); //initialize the screen
+  //tft.init(); //initialize the screen
   tft.setRotation(2); //set rotation for our layout
   //jump_timer = millis();
   tft.fillScreen(TFT_BLACK);

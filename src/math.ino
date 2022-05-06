@@ -71,7 +71,7 @@ int math_state = 0;
 
 
 void math_setup(){
-  tft.init();								// init screen
+  //tft.init();								// init screen
 	tft.setRotation(2);						// adjust rotation
 	tft.setTextSize(1);						// default font size
 	tft.fillScreen(TFT_BLACK);				// fill background
