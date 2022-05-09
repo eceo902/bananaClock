@@ -43,7 +43,7 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-char username[200];
+char username[200] = "karenTest";
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True"; // TODO: set based on log-in by Tues 
@@ -424,7 +424,7 @@ void loop(){
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
     // go into settings
-     } else if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+     } if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
       // button39.button_change_time = millis();     
       goto_settings();
       if (!loggedIn){
@@ -433,7 +433,7 @@ void loop(){
       }
       mainState = 3;
     }
-    else if (button34.update() != 0){ // USER SETTINGS
+    if (button34.update() != 0){ // USER SETTINGS
       mainState = 4; 
     }
   } 
