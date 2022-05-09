@@ -59,9 +59,12 @@ char password[] = "";
 Button button45(45);
 Button button45Testing(45);
 Button button39(39);
+Button button39Clock(39);
 Button button38(38);
 Button button34(34);
 Button button34Testing(34);
+Button button34Clock(34);
+Button button34Settings(34);
 
 bool hasRung;
 void playmusic(){
@@ -165,11 +168,10 @@ void setup(){
   pinMode(20, OUTPUT);
   pinMode(21, OUTPUT);
   game_timer=millis();
-  setup_clock();
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  //setup_login();
+  setup_login();
 }
 
 
@@ -398,16 +400,19 @@ void loop(){
   float x, y;
   get_angle(&x, &y); //get angle values
   int bv = button34Testing.update(); //get button value
+  int b34C = button34Clock.update();
+  int b34S = button34Settings.update();
   button39.read(); //get button value
   int bv8 = button45Testing.update();
+  int b39C = button39Clock.update();
 
   if (mainState == 0){
-    //int loopTemp = loop_login();
-    //if (loopTemp != -1) {
+    int loopTemp = loop_login();
+    if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
-    //}
+    }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
@@ -424,7 +429,11 @@ void loop(){
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
     // go into settings
+<<<<<<< HEAD
      } if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+=======
+     } else if (b39C != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+>>>>>>> 7bfcf67bcd00ea0d0853da632e2c67c7f9e61c0c
       // button39.button_change_time = millis();     
       goto_settings();
       if (!loggedIn){
@@ -433,7 +442,11 @@ void loop(){
       }
       mainState = 3;
     }
+<<<<<<< HEAD
     if (button34.update() != 0){ // USER SETTINGS
+=======
+    else if (b34C != 0){ // USER SETTINGS
+>>>>>>> 7bfcf67bcd00ea0d0853da632e2c67c7f9e61c0c
       mainState = 4; 
     }
   } 
@@ -445,13 +458,14 @@ void loop(){
     tft.setTextSize(1.5);
     loggedIn = true;
     int result = handle_settings();
-    if (result == 1 || result == 2) { // exit settings
+    if (result == 1) {
       mainState = 1;
-      tft.fillScreen(TFT_BLACK);
-
-      if (result == 2){
-        loggedIn = false;
-      }
+      setup_clock();
+    }
+    else if (result == 2){
+      loggedIn = false;
+      mainState = 0;
+      setup_login();
     }
   }
   else if (mainState == 4){
@@ -460,7 +474,7 @@ void loop(){
       mainState = 0;
       setup_login();    
     }
-    else if (bv != 0){
+    else if (b34S != 0){
       mainState = 1;
       setup_clock();
     }
