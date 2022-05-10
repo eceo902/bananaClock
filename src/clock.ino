@@ -80,7 +80,7 @@ char* loop_clock() {   // this is called when we remain in the clock state
     weather_timer = millis();
     get_weather();    
   }
-  if(millis() - location_timer > 500000)
+  if(millis() - location_timer > 500000){
     location_timer = millis();
     get_location();    
   }

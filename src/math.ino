@@ -55,7 +55,7 @@ const uint8_t MATHSOLVING = 2;
 int math_state = 0;
 
 
-void math_setup(){s
+void math_setup(){
 	tft.setRotation(2);						// adjust rotation
 	tft.setTextSize(1);						// default font size
 	tft.fillScreen(TFT_BLACK);				// fill background

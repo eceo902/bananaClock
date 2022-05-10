@@ -278,7 +278,8 @@ class gameChooser {
             jump_setup();            
           } else if (game_index == 1){
             tft.println("Playing the Maze Game!");
-            state = 5;
+            state = 7;
+            setupMaze();
           } else {
             tft.println("Playing Cipher!");
             cipher_setup();
@@ -398,7 +399,13 @@ class gameChooser {
     if (mathGameVal != -1){
       state = 5;
     }
-  } else if (state == 6){
+  } else if (state == 7){
+    int mazevar = loopMaze();
+    if (mazevar != -1){
+      state = 5;
+    }
+  
+  }else if (state == 6){
     int cipherGameVal = cipher_loop();
     // Serial.println(cipherGameVal);
     // Serial.println("printing");
@@ -420,7 +427,7 @@ gameChooser wg; //wikipedia object
 
 void loop(){
   ledcWrite(pwm_channel, ambientAmt);
-  float x, y;
+
   get_angle(&x, &y); //get angle values
 
   // button39.read(); //get button value
