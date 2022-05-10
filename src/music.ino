@@ -66,7 +66,7 @@ void starWars()
   beep(cH, 125);
   beep(eH, 650);
  
-  delay(500);
+  delayF(500);
  
   //Repeat second section
   secondSection();
@@ -81,7 +81,7 @@ void starWars()
   beep(cH, 125);
   beep(a, 650);  
  
-  delay(650);
+  delayF(650);
 }
  
 
@@ -98,7 +98,7 @@ void firstSection()
   beep(cH, 150);
   beep(a, 650);
  
-  delay(500);
+  delayF(500);
  
   beep(eH, 500);
   beep(eH, 500);
@@ -110,7 +110,7 @@ void firstSection()
   beep(cH, 150);
   beep(a, 650);
  
-  delay(500);
+  delayF(500);
 }
  
 void secondSection()
@@ -125,7 +125,7 @@ void secondSection()
   beep(fH, 125);    
   beep(fSH, 250);
  
-  delay(325);
+  delayF(325);
  
   beep(aS, 250);
   beep(dSH, 500);
@@ -135,7 +135,7 @@ void secondSection()
   beep(b, 125);  
   beep(cH, 250);  
  
-  delay(350);
+  delayF(350);
 }
 
 // Change to 0.5 for a slower version of the song, 1.25 for a faster version
@@ -530,12 +530,12 @@ void beep(int note, int duration)
 {
   //Play tone on buzzerPin
   ledcWriteTone(AUDIO_PWM, note); //COMMENT THIS OUT AFTER VERIFYING WORKING
-  delay(duration);
+  delayF(duration);
 
  
   //Stop tone on buzzerPin
   ledcWriteTone(AUDIO_PWM, 0); //COMMENT THIS OUT AFTER VERIFYING WORKING
-  delay(50);
+  delayF(50);
  
   //Increment counter
   counter++;
@@ -543,6 +543,15 @@ void beep(int note, int duration)
 //make the accelerometer instrument:
 //function can be blocking (just for this lab :))
 
+void delayF(int time){
+  uint32_t timingDelay = millis();
+  while (millis() - timingDelay < time){
+    if ((!digitalRead(BUTTON1)) || (!digitalRead(BUTTON2))|| (!digitalRead(BUTTON3))){
+      break;
+    }
+  }
+  
+}
 
 void mario(){
   for (int thisNote = 0; thisNote <sizee * 2; thisNote = thisNote + 2) {
@@ -550,6 +559,7 @@ void mario(){
     if ((!digitalRead(BUTTON1)) || (!digitalRead(BUTTON2))|| (!digitalRead(BUTTON3))){
       break;
     }
+    loop_car(); // DELETE THIS
 
     // calculates the duration of each note
     divider = melody[thisNote + 1];
@@ -567,7 +577,7 @@ void mario(){
    
 
     // Wait for the specief duration before playing the next note.
-    delay(noteDuration);
+    delayF(noteDuration);
 
     // stop the waveform generation before the next note.
     ledcWriteTone(AUDIO_PWM, 0);
@@ -745,7 +755,7 @@ for (int thisNote = 0; thisNote < sizee * 2; thisNote = thisNote + 2) {
     ledcWriteTone(AUDIO_PWM, melody[thisNote]);
 
     // Wait for the specief duration before playing the next note.
-    delay(noteDuration);
+    delayF(noteDuration);
     
     // stop the waveform generation before the next note.
     ledcWriteTone(AUDIO_PWM, 0);
@@ -915,7 +925,7 @@ for (int thisNote = 0; thisNote < sizee * 2; thisNote = thisNote + 2) {
   
 
     // Wait for the specief duration before playing the next note.
-    delay(noteDuration);
+    delayF(noteDuration);
 
     // stop the waveform generation before the next note.
     ledcWriteTone(AUDIO_PWM, 0);
@@ -944,7 +954,7 @@ void pirates(){
       ledcWriteTone(AUDIO_PWM, 0);
     }
     // delay is used to wait for tone to finish playing before moving to next loop
-    delay(wait);
+    delayF(wait);
   }
 }
 

@@ -63,9 +63,14 @@ char network[] = "MIT GUEST";
 char password[] = "";
 
 Button button45(45);
+Button button45Testing(45);
 Button button39(39);
+Button button39Clock(39);
 Button button38(38);
 Button button34(34);
+Button button34Testing(34);
+Button button34Clock(34);
+Button button34Settings(34);
 
 bool hasRung;
 void playmusic(){
@@ -165,7 +170,7 @@ void setup(){
 
   // For the horn
   pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
+  digitalWrite(13, LOW);
 
 
   // For the car motors
@@ -207,6 +212,11 @@ class gameChooser {
     void update(float angle, int button, bool alarm) {
 
       if ((alarm == true) && (state == 0)){
+        digitalWrite(13, HIGH);
+        delay(1000);
+        digitalWrite(13, LOW);
+        setup_car();
+        mario();
         state = 1;
         Serial.println("Alarm ringing, starting state 1");
         
@@ -214,7 +224,7 @@ class gameChooser {
        // tft.setSwapBytes(true); 
         //tft.pushImage(0, 0, 640, 480, clockImage);
         tft.fillScreen(TFT_BLACK);
-      tft.println("Alarm Ringing");
+        tft.println("Alarm Ringing");
         tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
@@ -245,6 +255,7 @@ class gameChooser {
         } else {
           loop_car();
         }
+        loop_car();
       } else if (state == 2){ //GAME SELECTION
 
 	      if((button==1) && (millis() - game_timer >= 100)){ //PRESSED BUTTON TO SELECT GAME
@@ -428,7 +439,19 @@ void loop(){
       // mainState = 1;
       // loggedIn = true;
       // setup_clock();
-    // }
+  // int bv = button34Testing.update(); //get button value
+  // int b34C = button34Clock.update();
+  // int b34S = button34Settings.update();
+  // int bv8 = button45Testing.update();
+  // int b39C = button39Clock.update();
+
+  // if (mainState == 0){
+  //   int loopTemp = loop_login();
+  //   if (loopTemp != -1) {
+  //     mainState = 1;
+  //     loggedIn = true;
+  //     setup_clock();
+  //   }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
@@ -444,7 +467,7 @@ void loop(){
       
     mainState = 2;
     wg.update(x, bv34, true); //input: angle and button, output String to display on this timestep
-     } 
+    } 
     //  else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
     //   // button39.button_change_time = millis();     
     //   goto_settings();
@@ -454,7 +477,19 @@ void loop(){
     //   }
     //   mainState = 3;
     // }
-    else if (bv34 != 0){ // USER SETTINGS
+    // else if (bv34 != 0){ // USER SETTINGS
+    // wg.update(x, bv34, true); //input: angle and button, output String to display on this timestep
+    // go into settings
+    //  } else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+    //   // button39.button_change_time = millis();     
+    //   goto_settings();
+    //   if (!loggedIn){
+    //     get_alarms_user(); // pull users' alarms from db
+    //     loggedIn = true;
+    //   }
+    //   mainState = 3;
+    // }
+    if (bv34 != 0){ // USER SETTINGS
       mainState = 4; 
     }
   } 
@@ -473,7 +508,7 @@ void loop(){
     else if (result == 2){
       loggedIn = false;
       mainState = 0;
-      // setup_login();
+      setup_login();
     }
   }
   else if (mainState == 4){    // go into settings
@@ -487,10 +522,11 @@ void loop(){
         loggedIn = true;
       }
       mainState = 5;
+      setup_login();    
     }
     // else if (bv34 != 0){
     //   mainState = 1;
     //   setup_clock();
     // }
   }
-}   
+  }  

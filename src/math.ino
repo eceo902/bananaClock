@@ -18,6 +18,10 @@
 // const int RESPONSE_TIMEOUT = 6000;	   // ms to wait for response from host
 // const uint16_t OUT_BUFFER_SIZE = 1000; // size of buffer to hold HTTP response
 
+Button mathbutton45(45);
+Button mathbutton39(39);
+Button mathbutton38(38);
+Button mathbutton34(34);
 
 char question[100];
 int answer;
@@ -67,12 +71,14 @@ int math_state = 0;
 
 
 void math_setup(){
-  tft.init();								// init screen
+  //tft.init();								// init screen
 	tft.setRotation(2);						// adjust rotation
 	tft.setTextSize(1);						// default font size
 	tft.fillScreen(TFT_BLACK);				// fill background
 	tft.setTextColor(TFT_GREEN, TFT_BLACK); // set color of font to green foreground, black background
 	tft.setCursor(0, 0, 2);
+  math_state = 0;
+  math_difficulty = 0;
 }
 // void setup()
 // {
@@ -134,10 +140,10 @@ void math_setup(){
 int math_loop()
 {
 
-	mathbutton1_click = button45.update() != 0;
-	mathbutton2_click = button39.update() != 0;
-	mathbutton3_click = button34.update() != 0;
-	mathbutton4_click = button38.update() != 0;
+	mathbutton1_click = mathbutton45.update() != 0;
+	mathbutton2_click = mathbutton39.update() != 0;
+	mathbutton3_click = mathbutton34.update() != 0;
+	mathbutton4_click = mathbutton38.update() != 0;
 
 	char output[500];
 	tft.setCursor(0, 0, 2);
@@ -145,7 +151,7 @@ int math_loop()
 	switch (math_state)
 	{
 	case (MATHOFF):
-		sprintf(output, "difficulty level %d                                                                                                                                                                                                                                                               ", math_difficulty);
+		sprintf(output, "difficulty level %d                                                                                              ", math_difficulty);
 		tft.println(output);
 		if (mathbutton3_click)
 		{
@@ -163,13 +169,13 @@ int math_loop()
 		{
 		case (EASYMATH):
 		{
-			x = rand() % 10 + 1;
-			y = rand() % 10 + 1;
+			mathx = rand() % 10 + 1;
+			mathy = rand() % 10 + 1;
 			operation = rand() % 4;
 			if (operation == 0)
 			{
 				answer = mathx + mathy;
-				sprintf(question, "%d + %d = ", x, y);
+				sprintf(question, "%d + %d = ", mathx, mathy);
 			}
 			else if (operation == 1)
 			{
@@ -360,6 +366,7 @@ int math_loop()
 				blink[i] = input[i];
 			}
 		}
+    blink[4]='\0';
 		if (mathbutton4_click)
 		{
 			if (atoi(input) == answer)
@@ -372,8 +379,8 @@ int math_loop()
 				math_state = MATHSTART;
 			}
 		}
-    Serial.println(question);
-    Serial.println(input);
+    // Serial.println(question);
+    // Serial.println(input);
 
 		if (millis() % 1000 < 500)
 			sprintf(output, "%s %s                                                                                                          ", question, input);

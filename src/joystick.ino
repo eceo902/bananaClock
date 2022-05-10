@@ -88,9 +88,9 @@ void setup_joystick() {
 
 int loop_joystick() {
   int upDown = analogRead(1);
-  Serial.println(upDown);
+  // Serial.println(upDown);
   int leftRight = analogRead(2);
-  Serial.println(leftRight);
+  // Serial.println(leftRight);
 
   int typeInput = button45.update();
   if (typeInput != 0 && position.y > vertOffset - 5) {    // Weird but we need to check if we are past the vertical offset in this if-statement
