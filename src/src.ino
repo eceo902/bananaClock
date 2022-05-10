@@ -35,7 +35,7 @@ char shareData[] = "True";
 
 // brightness variables
 const int LCD_PIN = 21;         //pin we use for PWM on LCD
-const int pwm_channel = 0; 
+const int pwm_channel = 2; 
 
 
 //Some constants and some resources:
@@ -419,7 +419,7 @@ gameChooser wg; //wikipedia object
 
 
 void loop(){
-  //ledcWrite(pwm_channel, ambientAmt);
+  ledcWrite(pwm_channel, ambientAmt);
   float x, y;
   get_angle(&x, &y); //get angle values
 
