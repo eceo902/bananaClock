@@ -429,6 +429,7 @@ void loop(){
   // int b39C = button39Clock.update();
 
   if (mainState == 0){
+    
     // int loopTemp = loop_login();
     // if (loopTemp != -1) {
       mainState = 1;
@@ -478,7 +479,6 @@ void loop(){
     //   mainState = 3;
     // }
     // else if (bv34 != 0){ // USER SETTINGS
-    // wg.update(x, bv34, true); //input: angle and button, output String to display on this timestep
     // go into settings
     //  } else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
     //   // button39.button_change_time = millis();     
