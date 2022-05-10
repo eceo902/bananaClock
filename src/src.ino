@@ -29,8 +29,14 @@ bool blocked = false;
 unsigned long game_timer;
 int mainState = 0;
 
-// char username[200];  // global variable for username
+float ambientAmt = 0.0;
+
 char shareData[] = "True";
+
+// brightness variables
+const int LCD_PIN = 21;         //pin we use for PWM on LCD
+const int pwm_channel = 0; 
+
 
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
@@ -157,12 +163,17 @@ void setup(){
   pinMode(14, OUTPUT);
 
   ledcSetup(0, 200, 12);//12 bits of PWM precision
-  ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
-  ledcAttachPin(14, 0);
+  // ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
+  // ledcAttachPin(14, 0);
+
+    //Turn on LCD_PIN as output (for driving transistor)
+  ledcAttachPin(LCD_PIN, pwm_channel);
+  pinMode(LCD_PIN, OUTPUT); 
+
 
   // For the horn
   pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
+  digitalWrite(13, LOW);
 
 
   // For the car motors
@@ -204,6 +215,10 @@ class gameChooser {
     void update(float angle, int button, bool alarm) {
 
       if ((alarm == true) && (state == 0)){
+        digitalWrite(13, HIGH);
+        delay(1000);
+        digitalWrite(13, LOW);
+        setup_car();
         state = 1;
         Serial.println("Alarm ringing, starting state 1");
         
@@ -211,7 +226,7 @@ class gameChooser {
        // tft.setSwapBytes(true); 
         //tft.pushImage(0, 0, 640, 480, clockImage);
         tft.fillScreen(TFT_BLACK);
-      tft.println("Alarm Ringing");
+        tft.println("Alarm Ringing");
         tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
@@ -403,14 +418,28 @@ gameChooser wg; //wikipedia object
 
 
 void loop(){
+  ledcWrite(pwm_channel, ambientAmt);
   float x, y;
   get_angle(&x, &y); //get angle values
+<<<<<<< HEAD
   int bv = button34Testing.update(); //get button value
   int b34C = button34Clock.update();
   int b34S = button34Settings.update();
   //button39.read(); //get button value
   int bv8 = button45Testing.update();
   int b39C = button39Clock.update();
+=======
+  // int bv34 = button34Testing.update(); //get button value
+  
+  // int b34C = button34Clock.update();
+  // int b34S = button34Settings.update();
+  // button39.read(); //get button value
+  int bv34 = button34.update(); //get button value
+  int bv39 = button39.update(); //get button value
+  int bv38 = button38.update(); //get button value
+  int bv45 = button45.update();
+  // int b39C = button39Clock.update();
+>>>>>>> f010f6e5b35fdcb3697516e44b73f0e1d91fd277
 
   if (mainState == 0){
     int loopTemp = loop_login();
@@ -419,6 +448,8 @@ void loop(){
       loggedIn = true;
       setup_clock();
     }
+      sprintf(username, "ccunning");
+      get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
@@ -426,7 +457,7 @@ void loop(){
     musicIndex = activeAlarm1();
 
     //DELETE SECOND PART OF IF
-    if ((musicIndex != -1) || (bv8 != 0)){
+    if ((musicIndex != -1) || (bv45 != 0)){
       Serial.println("ALARM RINGING");
       tft.fillScreen(TFT_BLACK);
       tft.println("Alarm Ringing");
@@ -435,8 +466,20 @@ void loop(){
       musicIndex = 1;
       
     mainState = 2;
-    wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
+    wg.update(x, bv34, true); //input: angle and button, output String to display on this timestep
+    } 
+    //  else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+    //   // button39.button_change_time = millis();     
+    //   goto_settings();
+    //   if (!loggedIn){
+    //     get_alarms_user(); // pull users' alarms from db
+    //     loggedIn = true;
+    //   }
+    //   mainState = 3;
+    // }
+    // else if (bv34 != 0){ // USER SETTINGS
     // go into settings
+<<<<<<< HEAD
 
      } if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
 
@@ -452,17 +495,29 @@ void loop(){
     }
   else if (b34C != 0){ // USER SETTINGS
 
+=======
+    //  } else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+    //   // button39.button_change_time = millis();     
+    //   goto_settings();
+    //   if (!loggedIn){
+    //     get_alarms_user(); // pull users' alarms from db
+    //     loggedIn = true;
+    //   }
+    //   mainState = 3;
+    // }
+    if (bv34 != 0){ // USER SETTINGS
+>>>>>>> f010f6e5b35fdcb3697516e44b73f0e1d91fd277
       mainState = 4; 
     }
   } 
   else if (mainState == 2){ //ALARM ACTIVATED
-    wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
+    wg.update(x, bv34, false); //input: angle and button, output String to display on this timestep
 
 
-  } else if (mainState == 3){ //SETTINGS PAGE
+  } else if (mainState == 5){ //SETTINGS PAGE
     tft.setTextSize(1.5);
     loggedIn = true;
-    int result = handle_settings();
+    int result = handle_settings(bv34, bv39, bv38, bv45);
     if (result == 1) {
       mainState = 1;
       setup_clock();
@@ -473,15 +528,22 @@ void loop(){
       setup_login();
     }
   }
-  else if (mainState == 4){
-    int result = handle_user_settings();
-    if (result == 1){
-      mainState = 0;
+  else if (mainState == 4){    // go into settings
+    int result = handle_user_settings(bv39, bv38);
+
+    if (result == 1) // go to alarm settings
+    {
+      goto_settings();
+      if (!loggedIn){
+        get_alarms_user(); // pull users' alarms from db
+        loggedIn = true;
+      }
+      mainState = 5;
       setup_login();    
     }
-    else if (b34S != 0){
-      mainState = 1;
-      setup_clock();
-    }
+    // else if (bv34 != 0){
+    //   mainState = 1;
+    //   setup_clock();
+    // }
   }
-}   
+  }  

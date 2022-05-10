@@ -63,8 +63,8 @@ void setup_clock() {   // this is called when transitioning to clock state
   blink_timer = millis(); // we also need to reset the blink timer so no drifting
   weather_timer = millis();
   location_timer = millis();
-  get_location();
-  get_weather();
+  // get_location();
+  // get_weather();
 }
 
 char* loop_clock() {   // this is called when we remain in the clock state
@@ -76,14 +76,14 @@ char* loop_clock() {   // this is called when we remain in the clock state
   y = imu.accelCount[1] * imu.aRes;
   z = imu.accelCount[2] * imu.aRes;
   acc_magg = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
-  if(millis() - weather_timer > 30000){ //refresh weather every half a minute
-    weather_timer = millis();
-    get_weather();    
-  }
-  if(millis() - location_timer > 300000){ //refresh weather every half a minute
-    location_timer = millis();
-    get_location();    
-  }
+  // if(millis() - weather_timer > 30000){ //refresh weather every half a minute
+  //   weather_timer = millis();
+  //   get_weather();    
+  // }
+  // if(millis() - location_timer > 300000){ //refresh weather every half a minute
+  //   location_timer = millis();
+  //   get_location();    
+  // }
 
   switch(military_state) {
     case STANDARD:
@@ -221,7 +221,7 @@ void calibrate_time() {
   strcat(request_buffer, "Host: iesc-s3.mit.edu\r\n"); //add more to the end
   strcat(request_buffer, "\r\n"); //add blank line!
   //submit to function that performs GET.  It will return output using response_buffer char array
-  do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+  do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
   strncpy(hm, &response_buffer[11], 5);
   strncpy(hms, &response_buffer[11], 8);
   strncpy(hm_military, &response_buffer[11], 5);
@@ -339,6 +339,8 @@ int offset = sprintf(google_json_body, "%s", PREFIX);
   }
 }
 
+
+// //https://openweathermap.org/current
 //https://openweathermap.org/current
 void get_weather(){
     
@@ -366,5 +368,4 @@ void get_weather(){
       //sprintf(temp, atoi(doc["main"]["temp"]));
       Serial.println(weather);
       Serial.println(temp);
-    
 }
