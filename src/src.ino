@@ -423,7 +423,10 @@ class gameChooser {
 }
 };
 gameChooser wg; //wikipedia object
-
+int bv34; //get button value
+  int bv39; //get button value
+  int bv38; //get button value
+  int bv45;
 
 void loop(){
   ledcWrite(pwm_channel, ambientAmt);
@@ -431,10 +434,10 @@ void loop(){
   get_angle(&x, &y); //get angle values
 
   // button39.read(); //get button value
-  int bv34 = button34.update(); //get button value
-  int bv39 = button39.update(); //get button value
-  int bv38 = button38.update(); //get button value
-  int bv45 = button45.update();
+  bv34 = button34.update(); //get button value
+  bv39 = button39.update(); //get button value
+  bv38 = button38.update(); //get button value
+  bv45 = button45.update();
   // int b39C = button39Clock.update();
 
   if (mainState == 0){

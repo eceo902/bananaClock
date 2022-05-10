@@ -68,9 +68,10 @@ void setup_clock() {   // this is called when transitioning to clock state
 }
 
 char* loop_clock() {   // this is called when we remain in the clock state
-  int style_input = button45.update();
-  int power_input = button39.update();
-  int military_input = button38.update();
+
+  int style_input = bv45;
+  int power_input = bv39;
+  int military_input = bv38;
   imu.readAccelData(imu.accelCount);
   x = imu.accelCount[0] * imu.aRes;
   y = imu.accelCount[1] * imu.aRes;
