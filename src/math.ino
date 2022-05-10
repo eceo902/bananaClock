@@ -34,17 +34,6 @@ char operationString[100];
 char expression[100];
 char urlexpression[100];
 
-// const int BUTTON_TIMEOUT = 1000; // button timeout in milliseconds
-// const float ZOOM = 1;
-// const uint8_t BUTTON1 = 45; // pin connected to button
-// const uint8_t BUTTON2 = 39; // pin connected to button
-// const uint8_t BUTTON3 = 34; // pin connected to button
-// // button states
-// const uint8_t UP = 0;
-// const uint8_t BUTTONPRESSED = 1;
-// int button1_state = 0;
-// int button2_state = 0;
-// int button3_state = 0;
 boolean mathbutton1_click = false;
 boolean mathbutton2_click = false;
 boolean mathbutton3_click = false;
@@ -56,12 +45,8 @@ const uint8_t NORMALMATH = 1;
 const uint8_t HARDMATH = 2;
 const uint8_t INSANEMATH = 3;
 int math_difficulty = 0;
-// static const char *math_string[] =
-// 	{"EASYMATH", "NORMALMATH", "HARDMATH", "INSANEMATH"};
-// Button button45(45);
-// Button button39(39);
-// Button button38(38);
-// Button button34(34);
+static const char *math_string[] =
+	{"EASY", "NORMAL", "HARD", "INSANE"};
 
 // interface states
 const uint8_t MATHOFF = 0;
@@ -70,8 +55,7 @@ const uint8_t MATHSOLVING = 2;
 int math_state = 0;
 
 
-void math_setup(){
-  //tft.init();								// init screen
+void math_setup(){s
 	tft.setRotation(2);						// adjust rotation
 	tft.setTextSize(1);						// default font size
 	tft.fillScreen(TFT_BLACK);				// fill background
@@ -80,62 +64,7 @@ void math_setup(){
   math_state = 0;
   math_difficulty = 0;
 }
-// void setup()
-// {
 
-// 	tft.init();								// init screen
-// 	tft.setRotation(2);						// adjust rotation
-// 	tft.setTextSize(1);						// default font size
-// 	tft.fillScreen(TFT_BLACK);				// fill background
-// 	tft.setTextColor(TFT_GREEN, TFT_BLACK); // set color of font to green foreground, black background
-// 	tft.setCursor(0, 0, 2);
-// 	Serial.begin(115200); // begin serial comms
-// 	delay(100);			  // wait a bit (100 ms)
-// 	Wire.begin();
-// 	delay(50); // pause to make sure comms get set up
-
-// 	Serial.begin(115200); // start serial at 115200 baud
-// 	while (!Serial)
-// 		;						   // wait for serial to start
-// 	WiFi.begin(network, password); // attempt to connect to wifi
-// 	uint8_t count = 0;			   // count used for Wifi check times
-// 	Serial.print("Attempting to connect to ");
-// 	Serial.println(network);
-// 	while (WiFi.status() != WL_CONNECTED && count < 12)
-// 	{
-// 		delay(500);
-// 		Serial.print(".");
-// 		count++;
-// 	}
-// 	delay(2000);
-// 	if (WiFi.isConnected())
-// 	{ // if we connected then print our IP, Mac, and SSID we're on
-// 		Serial.println("CONNECTED!");
-// 		Serial.printf("%d:%d:%d:%d (%s) (%s)\n", WiFi.localIP()[3], WiFi.localIP()[2],
-// 					  WiFi.localIP()[1], WiFi.localIP()[0],
-// 					  WiFi.macAddress().c_str(), WiFi.SSID().c_str());
-// 		delay(500);
-// 	}
-// 	else
-// 	{ // if we failed to connect just Try again.
-// 		Serial.println("Failed to Connect :/  Going to restart");
-// 		Serial.println(WiFi.status());
-// 		ESP.restart(); // restart the ESP (proper way)
-// 	}
-// 	pinMode(45, INPUT_PULLUP); // first button
-// 	pinMode(39, INPUT_PULLUP); // second button
-// 	pinMode(38, INPUT_PULLUP); // third button
-// 	pinMode(34, INPUT_PULLUP); // fourth button
-// }
-
-// void loop()
-// {
-// 	int math = math_loop();
-// 	if (math != -1)
-// 	{
-// 		Serial.println(math);
-// 	}
-// }
 
 int math_loop()
 {
@@ -151,7 +80,7 @@ int math_loop()
 	switch (math_state)
 	{
 	case (MATHOFF):
-		sprintf(output, "difficulty level %d                                                                                              ", math_difficulty);
+		sprintf(output, "difficulty level %s                                                                                              ", math_string[math_difficulty]);
 		tft.println(output);
 		if (mathbutton3_click)
 		{
@@ -339,11 +268,6 @@ int math_loop()
 	case (MATHSOLVING):
 	{
 		//THIS IS ALL FOR NO KEYBOARD
-
-		// if (button1_click)
-		// 	simpleInput++;
-		// if (button2_click && simpleInput >= 0)
-		// 	simpleInput--;
 		if (mathbutton1_click)
 		{
 			//inputIndex = (inputIndex + 3) % 4;
