@@ -23,7 +23,6 @@ char alarm5Time[8];
 const int maxAlarmNums = 5;
 char *setting_alarms[maxAlarmNums] = {alarm1Time, alarm2Time, alarm3Time, alarm4Time, alarm5Time}; //https://www.javatpoint.com/cpp-array-of-pointers
 
-// char temp_username[] = "ccunning"; // temp username for now 
 // user username[] array instead of this
 
 TimeGetter tg;
@@ -62,6 +61,8 @@ int hour;
 int mins;
 int music_option;
 int setting_state;
+
+int button39ChangeTime = 0;
 
 uint32_t scroll_timer = millis();
 const int scroll_threshold = 150;
@@ -205,11 +206,6 @@ int update_db_alarms(){
 
 int handle_settings(int update_34, int update_39, int update_38, int update_45)
 {
-  // int update_34 = button34.update();
-  // int update_39 = button39.update();
-  // int update_38 = button38.update();
-  // int update_45 = button45.update();
-
   tft.setTextSize(1.5);
   if (setting_state == PRINT_ALARMS)
   {
@@ -222,7 +218,7 @@ int handle_settings(int update_34, int update_39, int update_38, int update_45)
         return 1;
       }
 
-    if (update_39 != 0) { // LOGOUT of program, post alarms to database        
+    if (update_39 != 0 && millis() - button39ChangeTime >= BUTTON_PRESS_BUFFER) { // LOGOUT of program, post alarms to database            
         return update_db_alarms();
     }
 
@@ -233,6 +229,7 @@ int handle_settings(int update_34, int update_39, int update_38, int update_45)
       mins = 0;
       music_option = 0;
       setting_state = ADD;
+      tg.scroll_prints(hour, 23);
       scroll_timer = millis();
     }
 
@@ -248,8 +245,9 @@ int handle_settings(int update_34, int update_39, int update_38, int update_45)
   {
     modify_alarm_2(currNumberAlarms);
   }
-  if (setting_state == MODIFY){
-    if (update_39 !=0 )
+  if (setting_state == MODIFY)
+  {
+    if (update_39 !=0)
     {
       modAlarmNumber+=1;
       if (modAlarmNumber == currNumberAlarms){
@@ -262,7 +260,9 @@ int handle_settings(int update_34, int update_39, int update_38, int update_45)
       hour = 1;
       mins = 0;
       music_option = 0;
+      tg.scroll_prints(hour, 23);
       setting_state = MODIFY_ALARM;
+      scroll_timer = millis();
     }
     if (update_45 != 0)
     {
@@ -386,7 +386,13 @@ void modify_alarm_2(int alarm_num)
     int bv = button39.update(); //get button value
     int res = tg.update(y, bv, 23); //input: angle and button, output String to display on 
     if (res != -1)  {
-      hour = res;
+      if (res == 0){
+        res = 23;        
+      }
+      else{
+        res -= 1;
+      }
+      hour = res;      
       alarm_state = ADD_MIN;
     }
   }
@@ -397,6 +403,12 @@ void modify_alarm_2(int alarm_num)
     int bv = button39.update(); //get button value
     int res = tg.update(y, bv, 59); //input: angle and button, output String to display on 
     if (res != -1)  {
+      if (res == 0){
+        res = 60;        
+      }
+      else{
+        res -= 1;
+      }
       mins = res;
       alarm_state = ADD_MUSIC;
       time_to_str(setting_alarms[alarm_num], hour, mins);
@@ -457,6 +469,7 @@ void modify_alarm_2(int alarm_num)
     if (setting_state == ADD){
       currNumberAlarms++;
     }
+    button39ChangeTime = millis();
     setting_state = PRINT_ALARMS;
     alarm_state = ADD_HOUR;
     musicState = 0;

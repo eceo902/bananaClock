@@ -6,9 +6,9 @@ const int BRIGHTNESS = 3;
 int user_state = 0;
 
 // return 0 if still in settings, else 1
-int handle_user_settings(){
-  int update_39 = button39.update();
-  int update_38 = button38.update();
+int handle_user_settings(int update_39, int update_38){
+  // int update_39 = button39.update();
+  // int update_38 = button38.update();
   
   if (user_state == 0){ // just entered page
     tft.setRotation(2); //adjust rotation
@@ -30,7 +30,7 @@ int handle_user_settings(){
     }
   }
   else if (user_state == 2){
-    if (update_38 != 0)
+    if (update_39 != 0)
     {
       Serial.println(ambientAmt);
       if (ambientAmt >= 4095.0){
@@ -40,7 +40,7 @@ int handle_user_settings(){
         ambientAmt += 4095/10;
       }
     }
-    else if (update_39 != 0) { // exit settings
+    else if (update_38 != 0) { // exit settings
       user_state = 0;
       return 1;
     }
@@ -72,11 +72,11 @@ void print_settings_info2(){
   tft.setCursor(0,0,1);
   tft.fillScreen(TFT_BLACK);
   tft.setTextSize(1.5);
-  tft.println("Button 38: Cycle Brightness");
+  tft.println("Button 39: Cycle Brightness");
   tft.println("");
   tft.println("");
   tft.println("");
-  tft.println("Button 39: Confirm Setting");
+  tft.println("Button 38: Confirm Setting");
 }
 
 void switch_leaderboard(){
