@@ -559,6 +559,7 @@ void mario(){
     if ((!digitalRead(BUTTON1)) || (!digitalRead(BUTTON2))|| (!digitalRead(BUTTON3))){
       break;
     }
+    loop_car(); // DELETE THIS
 
     // calculates the duration of each note
     divider = melody[thisNote + 1];

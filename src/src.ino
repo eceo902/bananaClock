@@ -159,7 +159,7 @@ void setup(){
 
   // For the horn
   pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
+  digitalWrite(13, LOW);
 
 
   // For the car motors
@@ -201,6 +201,11 @@ class gameChooser {
     void update(float angle, int button, bool alarm) {
 
       if ((alarm == true) && (state == 0)){
+        digitalWrite(13, HIGH);
+        delay(1000);
+        digitalWrite(13, LOW);
+        setup_car();
+        mario();
         state = 1;
         Serial.println("Alarm ringing, starting state 1");
         
@@ -208,7 +213,7 @@ class gameChooser {
        // tft.setSwapBytes(true); 
         //tft.pushImage(0, 0, 640, 480, clockImage);
         tft.fillScreen(TFT_BLACK);
-      tft.println("Alarm Ringing");
+        tft.println("Alarm Ringing");
         tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
@@ -236,9 +241,8 @@ class gameChooser {
           ledcWriteTone(0, 0);
 
           game_timer = millis();
-        } else {
-          loop_car();
         }
+        loop_car();
       } else if (state == 2){ //GAME SELECTION
 
 	      if((button==1) && (millis() - game_timer >= 100)){ //PRESSED BUTTON TO SELECT GAME
@@ -402,7 +406,6 @@ void loop(){
   int bv = button34Testing.update(); //get button value
   int b34C = button34Clock.update();
   int b34S = button34Settings.update();
-  button39.read(); //get button value
   int bv8 = button45Testing.update();
   int b39C = button39Clock.update();
 
