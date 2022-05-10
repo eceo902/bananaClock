@@ -29,8 +29,15 @@ bool blocked = false;
 unsigned long game_timer;
 int mainState = 0;
 
+float ambientAmt = 0.0;
+
 // char username[200];  // global variable for username
 char shareData[] = "True";
+
+// brightness variables
+const int LCD_PIN = 21;         //pin we use for PWM on LCD
+const int pwm_channel = 0; 
+
 
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
@@ -149,8 +156,13 @@ void setup(){
   pinMode(14, OUTPUT);
 
   ledcSetup(0, 200, 12);//12 bits of PWM precision
-  ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
-  ledcAttachPin(14, 0);
+  // ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
+  // ledcAttachPin(14, 0);
+
+    //Turn on LCD_PIN as output (for driving transistor)
+  ledcAttachPin(LCD_PIN, pwm_channel);
+  pinMode(LCD_PIN, OUTPUT); 
+
 
   // For the horn
   pinMode(13, OUTPUT);
@@ -426,11 +438,14 @@ gameChooser wg; //wikipedia object
 
 
 void loop(){
+  ledcWrite(pwm_channel, ambientAmt);
   float x, y;
   get_angle(&x, &y); //get angle values
   int bv = button34.update(); //get button value
   button39.read(); //get button value
   int bv8 = button45.update();
+  int bv39 = button39.update(); //get button value
+  int bv38 = button38.update(); //get button value
 
   if (mainState == 0){
     mainState = 1;
@@ -470,7 +485,7 @@ void loop(){
   } else if (mainState == 3){ //SETTINGS PAGE
     tft.setTextSize(1.5);
     loggedIn = true;
-    int result = handle_settings();
+    int result = handle_settings(bv, bv39, bv38, bv8);
     if (result == 1 || result == 2) { // exit settings
       mainState = 1;
       tft.fillScreen(TFT_BLACK);
@@ -483,6 +498,7 @@ void loop(){
   else if (mainState == 4){
     int result = handle_user_settings();
     if (result == 1){
+      Serial.println("GO BACK");
       mainState = 0;
       tft.fillScreen(TFT_BLACK);      
     }

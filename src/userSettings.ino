@@ -7,22 +7,40 @@ int user_state = 0;
 
 // return 0 if still in settings, else 1
 int handle_user_settings(){
+  int update_39 = button39.update();
+  int update_38 = button38.update();
+  
   if (user_state == 0){ // just entered page
     tft.setRotation(2); //adjust rotation
     tft.setCursor(0,0,1);
     tft.setTextSize(1.5);
     tft.fillScreen(TFT_BLACK);
-    print_settings_info();
+    print_settings_info1();
     user_state = 1;
   }
   else if (user_state == 1){
-  if (button38.update() == 1)
-  {
-    switch_leaderboard(); 
-    user_state = 0;
+    if (update_39 != 0)
+    {
+      switch_leaderboard(); 
+    }
+    else if (update_38 != 0) 
+    { // Confirm
+      user_state = 2;
+      print_settings_info2();
+    }
   }
-  // exit page
-  if (button39.update() == 1) { // exit settings
+  else if (user_state == 2){
+    if (update_38 != 0)
+    {
+      Serial.println(ambientAmt);
+      if (ambientAmt >= 4095.0){
+        ambientAmt = 0.0;
+      }
+      else{
+        ambientAmt += 4095/10;
+      }
+    }
+    else if (update_39 != 0) { // exit settings
       user_state = 0;
       return 1;
     }
@@ -30,23 +48,35 @@ int handle_user_settings(){
   return 0;
 }
 
-void print_settings_info(){
+void print_settings_info1(){
+  tft.setCursor(0,0,1);
+  tft.fillScreen(TFT_BLACK);
   tft.setTextSize(1.5);
   tft.printf("On Leaderboard?: %s", on_leaderboard);
   tft.println("");
   tft.println("");
   tft.println("");
   if (strcmp(on_leaderboard, "True") == 0) {
-    tft.println("Button 38: Leave LeaderBoard");
+    tft.println("Button 39: Leave LeaderBoard");
   }
   else{
-    tft.println("Button 38: Join LeaderBoard");
+    tft.println("Button 39: Join LeaderBoard");
   }
   tft.println("");
   tft.println("");
   tft.println("");
-  tft.println("Button 39: Back to Clock");
-  // if user presses button to change, if var == "True" set to "False" else now "True"
+  tft.println("Button 38: Confirm Setting");
+}
+
+void print_settings_info2(){
+  tft.setCursor(0,0,1);
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextSize(1.5);
+  tft.println("Button 38: Cycle Brightness");
+  tft.println("");
+  tft.println("");
+  tft.println("");
+  tft.println("Button 39: Confirm Setting");
 }
 
 void switch_leaderboard(){
@@ -58,7 +88,8 @@ void switch_leaderboard(){
     else{
       on_leaderboard[0] = '\0';
       sprintf(on_leaderboard, "%s", "True");
-    }      
+    }
+    print_settings_info1();      
 }
 
 

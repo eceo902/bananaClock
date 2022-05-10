@@ -62,8 +62,8 @@ void setup_clock() {   // this is called when transitioning to clock state
   blink_timer = millis(); // we also need to reset the blink timer so no drifting
   weather_timer = millis();
   location_timer = millis();
-  get_location();
-  get_weather();
+  // get_location();
+  // get_weather();
 }
 
 char* loop_clock() {   // this is called when we remain in the clock state
@@ -75,14 +75,14 @@ char* loop_clock() {   // this is called when we remain in the clock state
   y = imu.accelCount[1] * imu.aRes;
   z = imu.accelCount[2] * imu.aRes;
   acc_magg = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
-  if(millis() - weather_timer > 30000){ //refresh weather every half a minute
-    weather_timer = millis();
-    get_weather();    
-  }
-  if(millis() - location_timer > 300000){ //refresh weather every half a minute
-    location_timer = millis();
-    get_location();    
-  }
+  // if(millis() - weather_timer > 30000){ //refresh weather every half a minute
+  //   weather_timer = millis();
+  //   get_weather();    
+  // }
+  // if(millis() - location_timer > 300000){ //refresh weather every half a minute
+  //   location_timer = millis();
+  //   get_location();    
+  // }
 
   switch(military_state) {
     case STANDARD:
@@ -220,7 +220,7 @@ void calibrate_time() {
   strcat(request_buffer, "Host: iesc-s3.mit.edu\r\n"); //add more to the end
   strcat(request_buffer, "\r\n"); //add blank line!
   //submit to function that performs GET.  It will return output using response_buffer char array
-  do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+  do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
   strncpy(hm, &response_buffer[11], 5);
   strncpy(hms, &response_buffer[11], 8);
   strncpy(hm_military, &response_buffer[11], 5);
@@ -295,75 +295,75 @@ void print_time() {
   }
 } 
 
-void get_location(){
-int offset = sprintf(google_json_body, "%s", PREFIX);
-    int n = WiFi.scanNetworks(); //run a new scan. could also modify to use original scan from setup so quicker (though older info)
-    Serial.println("scan done");
-    if (n == 0) {
-      Serial.println("no networks found");
-    } else {
-      int max_aps = max(min(MAX_APS, n), 1);
-      for (int i = 0; i < max_aps; ++i) { //for each valid access point
-        uint8_t* mac = WiFi.BSSID(i); //get the MAC Address
-        offset += wifi_object_builder(google_json_body + offset, 3500-offset, WiFi.channel(i), WiFi.RSSI(i), WiFi.BSSID(i)); //generate the query
-        if(i!=max_aps-1){
-          offset +=sprintf(google_json_body+offset,",");//add comma between entries except trailing.
-        }
-      }
-      sprintf(google_json_body + offset, "%s", SUFFIX);
-      Serial.println(google_json_body);
-      int len = strlen(google_json_body);
-      // Make a HTTP request:
-      Serial.println("SENDING REQUEST");
-      request[0] = '\0'; //set 0th byte to null
-      offset = 0; //reset offset variable for sprintf-ing
-      offset += sprintf(request + offset, "POST https://www.googleapis.com/geolocation/v1/geolocate?key=%s  HTTP/1.1\r\n", API_KEY);
-      offset += sprintf(request + offset, "Host: googleapis.com\r\n");
-      offset += sprintf(request + offset, "Content-Type: application/json\r\n");
-      offset += sprintf(request + offset, "cache-control: no-cache\r\n");
-      offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", len);
-      offset += sprintf(request + offset, "%s\r\n", google_json_body);
-      do_https_request(SERVER, request, response, 1000, RESPONSE_TIMEOUT, false);
-      Serial.println("-----------");
-      Serial.println(response);
-      Serial.println("-----------");
-      //For Part Two of Lab04B, you should start working here. Create a DynamicJsonDoc of a reasonable size (few hundred bytes at least...)
-      char* start = strchr(response, '{');
-      char* end = strrchr(response, '}');
+// void get_location(){
+// int offset = sprintf(google_json_body, "%s", PREFIX);
+//     int n = WiFi.scanNetworks(); //run a new scan. could also modify to use original scan from setup so quicker (though older info)
+//     Serial.println("scan done");
+//     if (n == 0) {
+//       Serial.println("no networks found");
+//     } else {
+//       int max_aps = max(min(MAX_APS, n), 1);
+//       for (int i = 0; i < max_aps; ++i) { //for each valid access point
+//         uint8_t* mac = WiFi.BSSID(i); //get the MAC Address
+//         offset += wifi_object_builder(google_json_body + offset, 3500-offset, WiFi.channel(i), WiFi.RSSI(i), WiFi.BSSID(i)); //generate the query
+//         if(i!=max_aps-1){
+//           offset +=sprintf(google_json_body+offset,",");//add comma between entries except trailing.
+//         }
+//       }
+//       sprintf(google_json_body + offset, "%s", SUFFIX);
+//       Serial.println(google_json_body);
+//       int len = strlen(google_json_body);
+//       // Make a HTTP request:
+//       Serial.println("SENDING REQUEST");
+//       request[0] = '\0'; //set 0th byte to null
+//       offset = 0; //reset offset variable for sprintf-ing
+//       offset += sprintf(request + offset, "POST https://www.googleapis.com/geolocation/v1/geolocate?key=%s  HTTP/1.1\r\n", API_KEY);
+//       offset += sprintf(request + offset, "Host: googleapis.com\r\n");
+//       offset += sprintf(request + offset, "Content-Type: application/json\r\n");
+//       offset += sprintf(request + offset, "cache-control: no-cache\r\n");
+//       offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", len);
+//       offset += sprintf(request + offset, "%s\r\n", google_json_body);
+//       do_https_request(SERVER, request, response, 1000, RESPONSE_TIMEOUT, false);
+//       Serial.println("-----------");
+//       Serial.println(response);
+//       Serial.println("-----------");
+//       //For Part Two of Lab04B, you should start working here. Create a DynamicJsonDoc of a reasonable size (few hundred bytes at least...)
+//       char* start = strchr(response, '{');
+//       char* end = strrchr(response, '}');
 
-      DynamicJsonDocument doc(1024);
-      deserializeJson(doc, start, end-start+1);
-      lat = doc["location"]["lat"];
-      lon = doc["location"]["lng"];
-  }
-}
+//       DynamicJsonDocument doc(1024);
+//       deserializeJson(doc, start, end-start+1);
+//       lat = doc["location"]["lat"];
+//       lon = doc["location"]["lng"];
+//   }
+// }
 
-//https://openweathermap.org/current
-void get_weather(){
+// //https://openweathermap.org/current
+// void get_weather(){
     
-      char str[100];
-      sprintf(str, "lat %f, lon %f", lat, lon);
-      Serial.println(str);
-      char request_buffer[500];
-			sprintf(request_buffer, "GET /data/2.5/weather?lat=%f&lon=%f&appid=%s&units=%s HTTP/1.1\r\n", lat, lon, WEATHER_API_KEY, units);
-			strcat(request_buffer, "Host: api.openweathermap.org\r\n");
-			strcat(request_buffer, "\r\n"); // new line from header to body
-			do_http_request("api.openweathermap.org", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
-      Serial.println(request_buffer);
-			Serial.println("-----------");
-			Serial.println(response);
-			Serial.println("-----------");
+//       char str[100];
+//       sprintf(str, "lat %f, lon %f", lat, lon);
+//       Serial.println(str);
+//       char request_buffer[500];
+// 			sprintf(request_buffer, "GET /data/2.5/weather?lat=%f&lon=%f&appid=%s&units=%s HTTP/1.1\r\n", lat, lon, WEATHER_API_KEY, units);
+// 			strcat(request_buffer, "Host: api.openweathermap.org\r\n");
+// 			strcat(request_buffer, "\r\n"); // new line from header to body
+// 			do_http_request("api.openweathermap.org", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
+//       Serial.println(request_buffer);
+// 			Serial.println("-----------");
+// 			Serial.println(response);
+// 			Serial.println("-----------");
 
-      char* start = strchr(response, '{');
-      char* end = strrchr(response, '}');
-      DynamicJsonDocument doc(1024);
-      deserializeJson(doc, start, end-start+1);
-      sprintf(weather, doc["weather"][0]["main"]);
-      char str_temp[10];
-      dtostrf(doc["main"]["temp"], 1, 3, str_temp);
-      sprintf(temp, "%s ", str_temp);
-      //sprintf(temp, atoi(doc["main"]["temp"]));
-      Serial.println(weather);
-      Serial.println(temp);
+//       char* start = strchr(response, '{');
+//       char* end = strrchr(response, '}');
+//       DynamicJsonDocument doc(1024);
+//       deserializeJson(doc, start, end-start+1);
+//       sprintf(weather, doc["weather"][0]["main"]);
+//       char str_temp[10];
+//       dtostrf(doc["main"]["temp"], 1, 3, str_temp);
+//       sprintf(temp, "%s ", str_temp);
+//       //sprintf(temp, atoi(doc["main"]["temp"]));
+//       Serial.println(weather);
+//       Serial.println(temp);
     
-}
+// }
