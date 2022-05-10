@@ -159,12 +159,13 @@ void setup(){
   pinMode(38, INPUT_PULLUP); // third button
   pinMode(34, INPUT_PULLUP); // fourth button
 
-  // For the regular speakers
+
   pinMode(14, OUTPUT);
 
   ledcSetup(0, 200, 12);//12 bits of PWM precision
-  // ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
-  // ledcAttachPin(14, 0);
+  ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
+  ledcAttachPin(14, 0);
+
 
     //Turn on LCD_PIN as output (for driving transistor)
   ledcAttachPin(LCD_PIN, pwm_channel);
@@ -219,7 +220,6 @@ class gameChooser {
         delay(1000);
         digitalWrite(13, LOW);
         setup_car();
-        mario();
         state = 1;
         Serial.println("Alarm ringing, starting state 1");
         
@@ -419,7 +419,7 @@ gameChooser wg; //wikipedia object
 
 
 void loop(){
-  ledcWrite(pwm_channel, ambientAmt);
+  //ledcWrite(pwm_channel, ambientAmt);
   float x, y;
   get_angle(&x, &y); //get angle values
 
@@ -447,10 +447,10 @@ void loop(){
     musicIndex = activeAlarm1();
 
     //DELETE SECOND PART OF IF
-    if ((musicIndex != -1) || (bv45 != 0)){
+    if ((musicIndex != -1) || (bv39 != 0)){
       Serial.println("ALARM RINGING");
       tft.fillScreen(TFT_BLACK);
-      tft.println("Alarm Ringing");
+      //tft.println("Alarm Ringing");
       setup_car();
 
       musicIndex = 1;
