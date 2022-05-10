@@ -185,7 +185,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  setup_login();
+  //setup_login();
 }
 
 
@@ -261,7 +261,6 @@ class gameChooser {
           loop_car();
           playmusic();
         }
-        loop_car();
       } else if (state == 2){ //GAME SELECTION
 
 	      if((button==1) && (millis() - game_timer >= 100)){ //PRESSED BUTTON TO SELECT GAME
@@ -423,25 +422,13 @@ void loop(){
   ledcWrite(pwm_channel, ambientAmt);
   float x, y;
   get_angle(&x, &y); //get angle values
-<<<<<<< HEAD
-  int bv = button34Testing.update(); //get button value
-  int b34C = button34Clock.update();
-  int b34S = button34Settings.update();
-  //button39.read(); //get button value
-  int bv8 = button45Testing.update();
-  int b39C = button39Clock.update();
-=======
-  // int bv34 = button34Testing.update(); //get button value
-  
-  // int b34C = button34Clock.update();
-  // int b34S = button34Settings.update();
+
   // button39.read(); //get button value
   int bv34 = button34.update(); //get button value
   int bv39 = button39.update(); //get button value
   int bv38 = button38.update(); //get button value
   int bv45 = button45.update();
   // int b39C = button39Clock.update();
->>>>>>> f010f6e5b35fdcb3697516e44b73f0e1d91fd277
 
   if (mainState == 0){
     
@@ -450,23 +437,8 @@ void loop(){
       mainState = 1;
       loggedIn = true;
       setup_clock();
-      sprintf(username, "ccunning");
       get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
-      // mainState = 1;
-      // loggedIn = true;
-      // setup_clock();
-  // int bv = button34Testing.update(); //get button value
-  // int b34C = button34Clock.update();
-  // int b34S = button34Settings.update();
-  // int bv8 = button45Testing.update();
-  // int b39C = button39Clock.update();
 
-  // if (mainState == 0){
-  //   int loopTemp = loop_login();
-  //   if (loopTemp != -1) {
-  //     mainState = 1;
-  //     loggedIn = true;
-  //     setup_clock();
   //   }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
@@ -497,23 +469,7 @@ void loop(){
     // }
     // else if (bv34 != 0){ // USER SETTINGS
     // go into settings
-<<<<<<< HEAD
 
-     } if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
-
-     } else if (b39C != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
-
-      // button39.button_change_time = millis();     
-      goto_settings();
-      if (!loggedIn){
-        get_alarms_user(); // pull users' alarms from db
-        loggedIn = true;
-      }
-      mainState = 3;
-    }
-  else if (b34C != 0){ // USER SETTINGS
-
-=======
     //  } else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
     //   // button39.button_change_time = millis();     
     //   goto_settings();
@@ -524,7 +480,7 @@ void loop(){
     //   mainState = 3;
     // }
     if (bv34 != 0){ // USER SETTINGS
->>>>>>> f010f6e5b35fdcb3697516e44b73f0e1d91fd277
+
       mainState = 4; 
     }
   } 
