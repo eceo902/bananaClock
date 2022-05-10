@@ -219,6 +219,7 @@ class gameChooser {
         delay(1000);
         digitalWrite(13, LOW);
         setup_car();
+        mario();
         state = 1;
         Serial.println("Alarm ringing, starting state 1");
         
@@ -260,6 +261,7 @@ class gameChooser {
           loop_car();
           playmusic();
         }
+        loop_car();
       } else if (state == 2){ //GAME SELECTION
 
 	      if((button==1) && (millis() - game_timer >= 100)){ //PRESSED BUTTON TO SELECT GAME
@@ -442,14 +444,30 @@ void loop(){
 >>>>>>> f010f6e5b35fdcb3697516e44b73f0e1d91fd277
 
   if (mainState == 0){
-    int loopTemp = loop_login();
-    if (loopTemp != -1) {
+    
+    // int loopTemp = loop_login();
+    // if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
-    }
       sprintf(username, "ccunning");
       get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
+      // mainState = 1;
+      // loggedIn = true;
+      // setup_clock();
+  // int bv = button34Testing.update(); //get button value
+  // int b34C = button34Clock.update();
+  // int b34S = button34Settings.update();
+  // int bv8 = button45Testing.update();
+  // int b39C = button39Clock.update();
+
+  // if (mainState == 0){
+  //   int loopTemp = loop_login();
+  //   if (loopTemp != -1) {
+  //     mainState = 1;
+  //     loggedIn = true;
+  //     setup_clock();
+  //   }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
