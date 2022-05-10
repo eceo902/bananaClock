@@ -76,11 +76,11 @@ char* loop_clock() {   // this is called when we remain in the clock state
   y = imu.accelCount[1] * imu.aRes;
   z = imu.accelCount[2] * imu.aRes;
   acc_magg = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
-  if(millis() - weather_timer > 30000){ //refresh weather every half a minute
+  if(millis() - weather_timer > 300000){ 
     weather_timer = millis();
     get_weather();    
   }
-  if(millis() - location_timer > 300000){ //refresh weather every half a minute
+  if(millis() - location_timer > 500000)
     location_timer = millis();
     get_location();    
   }
