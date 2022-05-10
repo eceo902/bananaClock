@@ -221,7 +221,7 @@ void calibrate_time() {
   strcat(request_buffer, "Host: iesc-s3.mit.edu\r\n"); //add more to the end
   strcat(request_buffer, "\r\n"); //add blank line!
   //submit to function that performs GET.  It will return output using response_buffer char array
-  do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+  do_http_request("iesc-s3.mit.edu", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
   strncpy(hm, &response_buffer[11], 5);
   strncpy(hms, &response_buffer[11], 8);
   strncpy(hm_military, &response_buffer[11], 5);
@@ -299,7 +299,7 @@ void print_time() {
 void get_location(){
 int offset = sprintf(google_json_body, "%s", PREFIX);
     int n = WiFi.scanNetworks(); //run a new scan. could also modify to use original scan from setup so quicker (though older info)
-    Serial.println("scan done");
+    // Serial.println("scan done");
     if (n == 0) {
       Serial.println("no networks found");
     } else {
@@ -312,10 +312,10 @@ int offset = sprintf(google_json_body, "%s", PREFIX);
         }
       }
       sprintf(google_json_body + offset, "%s", SUFFIX);
-      Serial.println(google_json_body);
+      // Serial.println(google_json_body);
       int len = strlen(google_json_body);
       // Make a HTTP request:
-      Serial.println("SENDING REQUEST");
+      // Serial.println("SENDING REQUEST");
       request[0] = '\0'; //set 0th byte to null
       offset = 0; //reset offset variable for sprintf-ing
       offset += sprintf(request + offset, "POST https://www.googleapis.com/geolocation/v1/geolocate?key=%s  HTTP/1.1\r\n", API_KEY);
@@ -325,9 +325,9 @@ int offset = sprintf(google_json_body, "%s", PREFIX);
       offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", len);
       offset += sprintf(request + offset, "%s\r\n", google_json_body);
       do_https_request(SERVER, request, response, 1000, RESPONSE_TIMEOUT, false);
-      Serial.println("-----------");
-      Serial.println(response);
-      Serial.println("-----------");
+      // Serial.println("-----------");
+      // Serial.println(response);
+      // Serial.println("-----------");
       //For Part Two of Lab04B, you should start working here. Create a DynamicJsonDoc of a reasonable size (few hundred bytes at least...)
       char* start = strchr(response, '{');
       char* end = strrchr(response, '}');
@@ -339,21 +339,23 @@ int offset = sprintf(google_json_body, "%s", PREFIX);
   }
 }
 
+
+// //https://openweathermap.org/current
 //https://openweathermap.org/current
 void get_weather(){
     
       char str[100];
       sprintf(str, "lat %f, lon %f", lat, lon);
-      Serial.println(str);
+      // Serial.println(str);
       char request_buffer[500];
 			sprintf(request_buffer, "GET /data/2.5/weather?lat=%f&lon=%f&appid=%s&units=%s HTTP/1.1\r\n", lat, lon, WEATHER_API_KEY, units);
 			strcat(request_buffer, "Host: api.openweathermap.org\r\n");
 			strcat(request_buffer, "\r\n"); // new line from header to body
 			do_http_request("api.openweathermap.org", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
-      Serial.println(request_buffer);
-			Serial.println("-----------");
-			Serial.println(response);
-			Serial.println("-----------");
+      // Serial.println(request_buffer);
+			// Serial.println("-----------");
+			// Serial.println(response);
+			// Serial.println("-----------");
 
       char* start = strchr(response, '{');
       char* end = strrchr(response, '}');
@@ -366,5 +368,4 @@ void get_weather(){
       //sprintf(temp, atoi(doc["main"]["temp"]));
       Serial.println(weather);
       Serial.println(temp);
-    
 }
