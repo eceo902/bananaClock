@@ -393,15 +393,48 @@ void modify_alarm_2(int alarm_num)
     if (res != -1)  {
       mins = res;
       alarm_state = ADD_MUSIC;
+
+      tft.fillScreen(TFT_BLACK);
+      tft.setCursor(10, 40);
+      tft.println("Press 45 to confirm song and 39 to switch song");
+      tft.println("");
+        tft.println("Playing Game of Thrones");
+        throne();
+
       time_to_str(setting_alarms[alarm_num], hour, mins);
+      
     }
   }
   if (alarm_state == ADD_MUSIC){  
   
-    if (!digitalRead(BUTTON1)) {
+    if (!digitalRead(BUTTON1)) { //At each Changing State
       musicState += 1;
+      //DELETE THIS
       Serial.println("state is changing");
-    if (musicState == 5){
+      musicTiming = millis();
+      currNoteIndex = 0;
+
+      tft.fillScreen(TFT_BLACK);
+      tft.setCursor(10, 40);
+      tft.println("Press 45 to confirm song and 39 to switch song");
+      tft.println("");
+
+      if (musicState == 0){
+        tft.println("Playing Game of Thrones");
+        throne();
+  } else if (musicState == 1){
+        tft.println("Playing Harry Potter Theme Song");
+        harryPotterLoop();
+  } else if (musicState == 2){
+        tft.println("Playing Mario Theme Song");
+        mario();
+  } else if (musicState == 4){
+        tft.println("Playing Star Wars");
+        starWars();
+  } if (musicState == 3){
+    tft.println("Playing Pink Panther");
+    pinkPanther();
+  } else if (musicState == 5){
       musicState = 0;
     }
     delay(500);
@@ -410,44 +443,20 @@ void modify_alarm_2(int alarm_num)
   
 
   if (musicState == 0){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Pirates of the Caribeean");
-    pirates();
+    throne();
   } else if (musicState == 1){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Harry Potter Theme Song");
-    harryPotter();
+    harryPotterLoop();
   } else if (musicState == 2){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Mario Theme Song");
     mario();
   } else if (musicState == 4){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Star Wars");
     starWars();
   } if (musicState == 3){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 45 to confirm song and 39 to switch song");
-    tft.println("");
-    tft.println("Playing Pink Panther");
     pinkPanther();
   }
     if (!digitalRead(BUTTON2)) {
       Serial.println("problem if in here");
     music_options[alarm_num] = musicState;
+    ledcWriteTone(AUDIO_PWM, 0);
     if (setting_state == ADD){
       currNumberAlarms++;
     }

@@ -69,9 +69,9 @@ Button button34Settings(34);
 bool hasRung;
 void playmusic(){
   if (musicIndex == 0){
-    pirates();
+    throne();
   } else if (musicIndex == 1){
-    harryPotter();
+    harryPotterLoop();
   } else if (musicIndex == 2){
     mario();
   } else if (musicIndex == 4){
@@ -81,6 +81,9 @@ void playmusic(){
     pinkPanther();
   }
 }
+
+unsigned long musicTiming = millis();
+int currNoteIndex = 0;
 
 void postWinning(){
   char body[200];
@@ -212,6 +215,8 @@ class gameChooser {
         tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
+        musicTiming = millis();
+        currNoteIndex = 0;
         playmusic();
 
       } else if (state == 1){
@@ -238,6 +243,7 @@ class gameChooser {
           game_timer = millis();
         } else {
           loop_car();
+          playmusic();
         }
       } else if (state == 2){ //GAME SELECTION
 
@@ -402,7 +408,7 @@ void loop(){
   int bv = button34Testing.update(); //get button value
   int b34C = button34Clock.update();
   int b34S = button34Settings.update();
-  button39.read(); //get button value
+  //button39.read(); //get button value
   int bv8 = button45Testing.update();
   int b39C = button39Clock.update();
 
@@ -425,15 +431,17 @@ void loop(){
       tft.fillScreen(TFT_BLACK);
       tft.println("Alarm Ringing");
       setup_car();
+
+      musicIndex = 1;
       
     mainState = 2;
     wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
     // go into settings
-<<<<<<< HEAD
+
      } if (button39.update() != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
-=======
+
      } else if (b39C != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
->>>>>>> 7bfcf67bcd00ea0d0853da632e2c67c7f9e61c0c
+
       // button39.button_change_time = millis();     
       goto_settings();
       if (!loggedIn){
@@ -442,11 +450,8 @@ void loop(){
       }
       mainState = 3;
     }
-<<<<<<< HEAD
-    if (button34.update() != 0){ // USER SETTINGS
-=======
-    else if (b34C != 0){ // USER SETTINGS
->>>>>>> 7bfcf67bcd00ea0d0853da632e2c67c7f9e61c0c
+  else if (b34C != 0){ // USER SETTINGS
+
       mainState = 4; 
     }
   } 
