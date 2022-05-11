@@ -2,17 +2,16 @@ import sqlite3
 import datetime
 
 ht_db = '/var/jail/home/team41/login/userpassword.db'
-
 html = """<!DOCTYPE html>
-<html>
-<head>
+<html>  
+<head> 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title> Login Page </title>
-<style>
-Body {
+<style> 
+Body { 
   font-family: Calibri, Helvetica, sans-serif;
   background-color: white;
-}
+} 
 button {
        background-color: #4CAF50;
        width: 100%;
@@ -22,9 +21,9 @@ button {
         border: none;
         cursor: pointer;
          }
- form {
+ form { 
         border: 3px solid #f1f1f1;
-    }
+    }  
  input[type=text], input[type=password] {
         width: 100%;
         margin: 8px 0;
@@ -32,10 +31,10 @@ button {
         display: inline-block;
         border: 2px solid green;
         box-sizing: border-box;
-    }
+    } 
  button:hover {
         opacity: 0.7;
-    }
+    }  
   .cancelbtn {
         width: auto;
         padding: 10px 18px;  
@@ -64,8 +63,9 @@ button {
     </form>    
 </body>    
 </html>"""
-
-
+  
+  
+  
 def request_handler(request):
     if request["method"] == "GET":
         return html
@@ -79,20 +79,20 @@ def request_handler(request):
             return "Error with username, password, or confirmPassword"
 
         if password != confirmPassword:
-            return "password and confirmed password are not equal"
-
+            return "password and confirmed password are not equal" 
+    
         with sqlite3.connect(ht_db) as c:
             c.execute("""CREATE TABLE IF NOT EXISTS user_pw_data (user text, password text);""")
             # some other query(ies) about inserting data
-
+    
             #if already in database
             users = [i for i in c.execute('''SELECT * FROM user_pw_data WHERE user == ?;''',(username,))]
-
+    
             if users:
                 return "Username is taken"
             else:
                 c.execute('''INSERT into user_pw_data VALUES (?,?);''',(username, password))
-
+    
         return f"""
                 <!DOCTYPE html>
                 <html>
@@ -101,7 +101,7 @@ def request_handler(request):
                  <meta http-equiv = "refresh" content = "0, url = https://608dev-2.net/sandbox/sc/team41/login/login.py"/>
                 </head>
                 </html>
-                """
+                """ 
 
  #"Data POSTED successfully"
     else:
