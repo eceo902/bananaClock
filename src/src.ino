@@ -464,19 +464,19 @@ void loop(){
 
   if (mainState == 0){
     
-    int loopTemp = loop_login();
-    if (loopTemp != -1) {
+    // int loopTemp = loop_login();
+    // if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
       get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
       sprintf(on_leaderboard, "%s", "True"); // reset to True on each login
-     }
+    //  }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
-    char* time = loop_clock();
+    char* time = loop_clock(bv45, bv39, bv38);
     //if (strcmp(time, "06:48") == 0) {
-    musicIndex = activeAlarm1();
+    musicIndex = activeAlarm1(bv45, bv39, bv38);
 
     //DELETE SECOND PART OF IF
     if ((musicIndex != -1 ) && (hasRung == false)){
