@@ -378,7 +378,7 @@ class gameChooser {
 
     }
   } else if ((state == 5)){ //GAME WON!
-    hasrung = true;
+    hasRung = true;
     state = 0;
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
