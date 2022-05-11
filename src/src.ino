@@ -11,12 +11,9 @@ WiFiClientSecure client; //global WiFiClient Secure object
 WiFiClient client2; //global WiFiClient Secure object
 #include "images.h"
 //CURRENT BUGS
-//I think the timout after 1 min doesn't play the right music
-//star wars song is blocking and doesn exit in the middle
+
 //setting a time adds a +1
-//the alarm song onlly plays onece, not forever
 //if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
-//make sure all games actually restart if they take too long
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -227,7 +224,7 @@ class gameChooser {
     tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
-        tft.println();        
+        tft.println();
         tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
           tft.drawString(" Alarm Ringing", 0, 20, 2);
        
@@ -381,7 +378,11 @@ class gameChooser {
     state = 0;
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-    tft.drawString("Good morning! You have completed the game :)", 0, 20, 2);
+    tft.setTextSize(2);
+    tft.println("Good morning!");
+    tft.println();
+    tft.println(" You have completed");
+    tft.println(" the game :)");
     mainState = 1;
     Serial.println("finished game, congratulations!");
     delay(5000);
