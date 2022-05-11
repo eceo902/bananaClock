@@ -476,7 +476,7 @@ void loop(){
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock(bv45, bv39, bv38);
     //if (strcmp(time, "06:48") == 0) {
-    musicIndex = activeAlarm1(bv45, bv39, bv38);
+    musicIndex = activeAlarm1(time);
 
     //DELETE SECOND PART OF IF
     if ((musicIndex != -1 ) && (hasRung == false)){
