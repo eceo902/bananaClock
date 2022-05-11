@@ -7,8 +7,6 @@ int user_state = 0;
 
 // return 0 if still in settings, else 1
 int handle_user_settings(int update_39, int update_38){
-  // int update_39 = button39.update();
-  // int update_38 = button38.update();
   
   if (user_state == 0){ // just entered page
     tft.setRotation(2); //adjust rotation

@@ -363,20 +363,6 @@ void time_to_str(char* time_arr, int hour, int minute){
   }
 }
 
-void modify_prints(int hour, int min, int music_option){
-  tft.fillScreen(TFT_BLACK);
-  tft.setCursor(0,0,1);
-  tft.println("Button45: Change Hour");
-  tft.println("Button39: Change Min");
-  tft.println("Button38: Change Music");
-  tft.println("Button34: Confirm");
-  tft.println("");
-  print_time(hour, min);
-  tft.println("");
-  tft.printf("Music Selection: %d", music_option);
-  tft.println("");
-}
-
 void modify_alarm_2(int alarm_num)
 {
   if (alarm_state == ADD_HOUR)
@@ -488,8 +474,6 @@ void modify_alarm_2(int alarm_num)
 }
 
 int activeAlarm1(char* time){
-  // char* time = "10:00";
-  // char* time = loop_clock(update_45, update_39, update_38);
   for (int i = 0; i < currNumberAlarms; i++){
     if (music_options[i] != -1){ // if (*setting_alarms[i] != '\0'){
       if (strcmp(time, setting_alarms[i]) == 0){
