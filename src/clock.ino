@@ -67,11 +67,11 @@ void setup_clock() {   // this is called when transitioning to clock state
   get_weather();
 }
 
-char* loop_clock() {   // this is called when we remain in the clock state
+char* loop_clock(int update_45, int update_39, int update_38) {   // this is called when we remain in the clock state
 
-  int style_input = bv45;
-  int power_input = bv39;
-  int military_input = bv38;
+  int style_input = update_45;
+  int power_input = update_39;
+  int military_input = update_38;
   imu.readAccelData(imu.accelCount);
   x = imu.accelCount[0] * imu.aRes;
   y = imu.accelCount[1] * imu.aRes;

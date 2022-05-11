@@ -487,8 +487,9 @@ void modify_alarm_2(int alarm_num)
  }   
 }
 
-int activeAlarm1(){
-  char* time = loop_clock();
+int activeAlarm1(char* time){
+  // char* time = "10:00";
+  // char* time = loop_clock(update_45, update_39, update_38);
   for (int i = 0; i < currNumberAlarms; i++){
     if (music_options[i] != -1){ // if (*setting_alarms[i] != '\0'){
       if (strcmp(time, setting_alarms[i]) == 0){
