@@ -69,6 +69,11 @@ Button button34Testing(34);
 Button button34Clock(34);
 Button button34Settings(34);
 
+int bv34; //get button value
+int bv39; //get button value
+int bv38; //get button value
+int bv45;
+
 bool hasRung;
 void playmusic(){
   if (musicIndex == 0){
@@ -445,10 +450,8 @@ class gameChooser {
 }
 };
 gameChooser wg; //wikipedia object
-int bv34; //get button value
-  int bv39; //get button value
-  int bv38; //get button value
-  int bv45;
+
+
 
 void loop(){
   ledcWrite(pwm_channel, ambientAmt);

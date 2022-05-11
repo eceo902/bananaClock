@@ -2,7 +2,7 @@ void setup_login() {
   memset(letters, 0, sizeof(letters));
   memset(username, 0, sizeof(username));
   strcpy(prompt, "Enter username to login:");
-	setup_joystick();
+  setup_joystick();
 }
 
 int loop_login() {

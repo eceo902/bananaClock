@@ -49,10 +49,10 @@ void cipher_setup()
 int cipher_loop()
 {
 
-	cipherbutton1_click = cipherbutton45.update() != 0;
-	cipherbutton2_click = cipherbutton39.update() != 0;
-	cipherbutton3_click = cipherbutton34.update() != 0;
-	cipherbutton4_click = cipherbutton38.update() != 0;
+	cipherbutton1_click = bv45 != 0;
+	cipherbutton2_click = bv39 != 0;
+	cipherbutton3_click = bv34 != 0;
+	cipherbutton4_click = bv38 != 0;
 
 	char output[1000];
 	tft.setCursor(0, 0, 1);
