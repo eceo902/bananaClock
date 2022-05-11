@@ -184,7 +184,7 @@ void setup(){
 
   hasRung = false;
   loggedIn = false; // user has not logged in when program runs
-  //setup_login();
+  setup_login();
 }
 
 
@@ -465,14 +465,14 @@ void loop(){
 
   if (mainState == 0){
     
-    // int loopTemp = loop_login();
-    // if (loopTemp != -1) {
+    int loopTemp = loop_login();
+    if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
       get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
       sprintf(on_leaderboard, "%s", "True"); // reset to True on each login
-  //   }
+     }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
     char* time = loop_clock();
@@ -480,13 +480,11 @@ void loop(){
     musicIndex = activeAlarm1();
 
     //DELETE SECOND PART OF IF
-    if ((musicIndex != -1) || (bv39 != 0)){
+    if (musicIndex != -1){
       Serial.println("ALARM RINGING");
       tft.fillScreen(TFT_BLACK);
       //tft.println("Alarm Ringing");
       setup_car();
-
-      musicIndex = 1;
       
     mainState = 2;
     wg.update(x, bv34, true); //input: angle and button, output String to display on this timestep
