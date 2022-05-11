@@ -62,6 +62,8 @@ int mins;
 int music_option;
 int setting_state;
 
+int button39ChangeTime = 0;
+
 uint32_t scroll_timer = millis();
 const int scroll_threshold = 150;
 const float angle_threshold = 0.3;
@@ -202,7 +204,7 @@ int update_db_alarms(){
   return 2; 
 }
 
-int handle_settings()
+int handle_settings(int update_34, int update_39, int update_38, int update_45)
 {
   tft.setTextSize(1.5);
   if (setting_state == PRINT_ALARMS)
@@ -212,26 +214,27 @@ int handle_settings()
   }
   if (setting_state == DISP)
   {
-    if (button34.update() == 1) { // exit settings
+    if (update_34 != 0) { // exit settings
         return 1;
       }
 
-    if (button39.update() == 1) { // LOGOUT of program, post alarms to database        
+    if (update_39 != 0 && millis() - button39ChangeTime >= BUTTON_PRESS_BUFFER) { // LOGOUT of program, post alarms to database            
         return update_db_alarms();
     }
 
     // ADD NEW ALARM
-    if (button45.update() == 1 && currNumberAlarms < maxAlarmNums)
+    if (update_45!= 0 && currNumberAlarms < maxAlarmNums)
     {
       hour = 1;
       mins = 0;
       music_option = 0;
       setting_state = ADD;
+      tg.scroll_prints(hour, 23);
       scroll_timer = millis();
     }
 
     // MODIFY ALARM
-    if (button38.update() == 1 && currNumberAlarms > 0)
+    if (update_38 !=0 && currNumberAlarms > 0)
     {
       modAlarmNumber = 0;
       setting_state = MODIFY;
@@ -242,8 +245,9 @@ int handle_settings()
   {
     modify_alarm_2(currNumberAlarms);
   }
-  if (setting_state == MODIFY){
-    if (button39.update() == 1)
+  if (setting_state == MODIFY)
+  {
+    if (update_39 !=0)
     {
       modAlarmNumber+=1;
       if (modAlarmNumber == currNumberAlarms){
@@ -251,14 +255,16 @@ int handle_settings()
       }
       alarm_choice_prints();
     }
-    if (button34.update() == 1)
+    if (update_34 !=0)
     {
       hour = 1;
       mins = 0;
       music_option = 0;
+      tg.scroll_prints(hour, 23);
       setting_state = MODIFY_ALARM;
+      scroll_timer = millis();
     }
-    if (button45.update() == 1)
+    if (update_45 != 0)
     {
       delete_alarm(modAlarmNumber);
       setting_state = PRINT_ALARMS;
@@ -380,7 +386,13 @@ void modify_alarm_2(int alarm_num)
     int bv = button39.update(); //get button value
     int res = tg.update(y, bv, 23); //input: angle and button, output String to display on 
     if (res != -1)  {
-      hour = res;
+      if (res == 0){
+        res = 23;        
+      }
+      else{
+        res -= 1;
+      }
+      hour = res;      
       alarm_state = ADD_MIN;
     }
   }
@@ -391,66 +403,82 @@ void modify_alarm_2(int alarm_num)
     int bv = button39.update(); //get button value
     int res = tg.update(y, bv, 59); //input: angle and button, output String to display on 
     if (res != -1)  {
+      if (res == 0){
+        res = 60;        
+      }
+      else{
+        res -= 1;
+      }
       mins = res;
       alarm_state = ADD_MUSIC;
+
+      tft.fillScreen(TFT_BLACK);
+      tft.setCursor(10, 40);
+      tft.println("Press 39 to confirm song and 45 to switch song");
+      tft.println("");
+        tft.println("Playing Game of Thrones");
+        throne();
+
       time_to_str(setting_alarms[alarm_num], hour, mins);
+      
     }
   }
   if (alarm_state == ADD_MUSIC){  
   
-    if (!digitalRead(BUTTON1)) {
+    if (!digitalRead(BUTTON1)) { //At each Changing State
       musicState += 1;
+      //DELETE THIS
       Serial.println("state is changing");
-    if (musicState == 5){
+      musicTiming = millis();
+      currNoteIndex = 0;
+
+      tft.fillScreen(TFT_BLACK);
+      tft.setCursor(10, 40);
+      tft.println("Press 39 to confirm song and 45 to switch song");
+      tft.println("");
+
+      if (musicState == 5){
       musicState = 0;
     }
+
+      if (musicState == 0){
+        tft.println("Playing Game of Thrones");
+        throne();
+  } else if (musicState == 1){
+        tft.println("Playing Harry Potter Theme Song");
+        harryPotterLoop();
+  } else if (musicState == 2){
+        tft.println("Playing Mario Theme Song");
+        mario();
+  } else if (musicState == 4){
+        tft.println("Playing Star Wars");
+        starWars();
+  } else if (musicState == 3){
+    tft.println("Playing Pink Panther");
+    pinkPanther();
+  } 
     delay(500);
   }
 
-  
-
   if (musicState == 0){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Pirates of the Caribeean");
-    pirates();
+    throne();
   } else if (musicState == 1){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Harry Potter Theme Song");
-    harryPotter();
+    harryPotterLoop();
   } else if (musicState == 2){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Mario Theme Song");
     mario();
   } else if (musicState == 4){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 39 to confirm song and 45 to switch song");
-    tft.println("");
-    tft.println("Playing Star Wars");
     starWars();
   } if (musicState == 3){
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(10, 40);
-    tft.println("Press 45 to confirm song and 39 to switch song");
-    tft.println("");
-    tft.println("Playing Pink Panther");
     pinkPanther();
   }
     if (!digitalRead(BUTTON2)) {
       Serial.println("problem if in here");
     music_options[alarm_num] = musicState;
+    ledcWriteTone(AUDIO_PWM, 0);
     if (setting_state == ADD){
       currNumberAlarms++;
     }
+    button39ChangeTime = millis();
     setting_state = PRINT_ALARMS;
     alarm_state = ADD_HOUR;
     musicState = 0;
@@ -459,62 +487,9 @@ void modify_alarm_2(int alarm_num)
  }   
 }
 
-void modify_alarm(int alarm_num)
-{
-  button45.read();
-  if (button45.button_pressed && millis() - button45.button_change_time > BUTTON_PRESS_BUFFER)
-  {
-    button45.button_change_time = millis();
-    Serial.printf("Hour %d", hour);
-    Serial.println("");
-    hour+=1;
-    if (hour == 24){
-      hour = 0;
-    }
-    modify_prints(hour, mins, music_option);
-  }
-
-  button39.read();
-  if (button39.button_pressed && millis() - button39.button_change_time > BUTTON_PRESS_BUFFER)
-  {
-    button39.button_change_time = millis();
-    Serial.printf("Mins %d", mins);
-    Serial.println("");
-     mins+=1;
-    if (mins == 60){
-      mins = 0;
-    }
-    modify_prints(hour, mins, music_option);
-  }
-
-  button38.read();
-  if (button38.button_pressed && millis() - button38.button_change_time > BUTTON_PRESS_BUFFER)
-  {
-    button38.button_change_time = millis();
-    button38.update();
-    Serial.println("");
-    music_option+=1;
-    modify_prints(hour, mins, music_option);
-  }
-
-  button34.read();
-  if (button34.button_pressed && millis() - button34.button_change_time > BUTTON_PRESS_BUFFER)
-  {
-    button34.button_change_time = millis();
-    time_to_str(setting_alarms[alarm_num], hour, mins);
-    music_options[alarm_num] = music_option;
-    Serial.printf("Minutes Set %d", mins);
-    Serial.printf("Min Set %d", mins);
-    Serial.printf("Music Set %d", music_options[alarm_num]);
-    if (setting_state == ADD){
-      currNumberAlarms++;
-    }
-    setting_state = PRINT_ALARMS;
-  }
-}
-
-int activeAlarm1(){
-  char* time = loop_clock();
+int activeAlarm1(char* time){
+  // char* time = "10:00";
+  // char* time = loop_clock(update_45, update_39, update_38);
   for (int i = 0; i < currNumberAlarms; i++){
     if (music_options[i] != -1){ // if (*setting_alarms[i] != '\0'){
       if (strcmp(time, setting_alarms[i]) == 0){

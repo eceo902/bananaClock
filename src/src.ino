@@ -11,12 +11,9 @@ WiFiClientSecure client; //global WiFiClient Secure object
 WiFiClient client2; //global WiFiClient Secure object
 #include "images.h"
 //CURRENT BUGS
-//I think the timout after 1 min doesn't play the right music
-//star wars song is blocking and doesn exit in the middle
+
 //setting a time adds a +1
-//the alarm song onlly plays onece, not forever
 //if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
-//make sure all games actually restart if they take too long
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -29,8 +26,14 @@ bool blocked = false;
 unsigned long game_timer;
 int mainState = 0;
 
-// char username[200];  // global variable for username
+float ambientAmt = 0.0;
+
 char shareData[] = "True";
+
+// brightness variables
+const int LCD_PIN = 37;         //pin we use for PWM on LCD
+const int pwm_channel = 2; 
+
 
 //Some constants and some resources:
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
@@ -43,7 +46,7 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-char username[200];
+char username[200] = "karenTest";
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True"; // TODO: set based on log-in by Tues 
@@ -69,9 +72,9 @@ Button button34Settings(34);
 bool hasRung;
 void playmusic(){
   if (musicIndex == 0){
-    pirates();
+    throne();
   } else if (musicIndex == 1){
-    harryPotter();
+    harryPotterLoop();
   } else if (musicIndex == 2){
     mario();
   } else if (musicIndex == 4){
@@ -81,6 +84,9 @@ void playmusic(){
     pinkPanther();
   }
 }
+
+unsigned long musicTiming = millis();
+int currNoteIndex = 0;
 
 void postWinning(){
   char body[200];
@@ -150,16 +156,23 @@ void setup(){
   pinMode(38, INPUT_PULLUP); // third button
   pinMode(34, INPUT_PULLUP); // fourth button
 
-  // For the regular speakers
+
   pinMode(14, OUTPUT);
 
-  ledcSetup(0, 200, 12);//12 bits of PWM precision
-  ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
+  // ledcSetup(0, 200, 12);//12 bits of PWM precision
+  ledcSetup(pwm_channel, 200, 12);//12 bits of PWM precision
+  // ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
   ledcAttachPin(14, 0);
+
+
+    //Turn on LCD_PIN as output (for driving transistor)
+  ledcAttachPin(LCD_PIN, pwm_channel);
+  pinMode(LCD_PIN, OUTPUT); 
+
 
   // For the horn
   pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
+  digitalWrite(13, LOW);
 
 
   // For the car motors
@@ -197,22 +210,36 @@ class gameChooser {
       game_index = 0;
       scroll_timer = millis();
     }
-
-    void update(float angle, int button, bool alarm) {
-
-      if ((alarm == true) && (state == 0)){
+    void alarmRinging(){
+      digitalWrite(13, HIGH);
+        delay(1000);
+        digitalWrite(13, LOW);
+        setup_car();
         state = 1;
         Serial.println("Alarm ringing, starting state 1");
         
         //ADD CLOCK BACKGROUND
        // tft.setSwapBytes(true); 
         //tft.pushImage(0, 0, 640, 480, clockImage);
-        tft.fillScreen(TFT_BLACK);
-      tft.println("Alarm Ringing");
-        tft.setRotation(2);
+  tft.fillScreen(TFT_BLACK);
+    tft.setRotation(2);
         tft.setTextSize(1);
         tft.setCursor(10, 40);
+        tft.println();
+        tft.setTextColor(TFT_DARKGREY, TFT_SKYBLUE);
+          tft.drawString(" Alarm Ringing", 0, 20, 2);
+       
+      
+      
+        musicTiming = millis();
+        currNoteIndex = 0;
         playmusic();
+    }    
+
+    void update(float angle, int button, bool alarm) {
+
+      if ((alarm == true) && (state == 0)){
+        alarmRinging();
 
       } else if (state == 1){
 
@@ -238,6 +265,7 @@ class gameChooser {
           game_timer = millis();
         } else {
           loop_car();
+          playmusic();
         }
       } else if (state == 2){ //GAME SELECTION
 
@@ -250,13 +278,17 @@ class gameChooser {
             tft.println("Playing the Math Game!");
             math_setup();
             state = 3;
+        
           } else if(game_index == 0){
             tft.println("Playing the Jumping Game!");
             state = 4;
-            jump_setup();            
+            jump_setup();      
+            sprintf(game_name, "jumping");      
           } else if (game_index == 1){
             tft.println("Playing the Maze Game!");
-            state = 5;
+            state = 7;
+            setupMaze();
+            sprintf(game_name, "maze");
           } else {
             tft.println("Playing Cipher!");
             cipher_setup();
@@ -267,11 +299,8 @@ class gameChooser {
 
         } else if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
           state = 1;
-          ledcWriteTone(0, 220);
+          alarmRinging();
           //tft.pushImage(0, 0, 640, 480, clockImage);
-
-      tft.println("Alarm Ringing");
-          tft.fillScreen(TFT_BLACK);
           
   
       } else if (scroll_threshold<=millis()-scroll_timer){
@@ -348,17 +377,16 @@ class gameChooser {
 
 
     }
-  } else if ((state == 5)){ //SEPARATE THIS AS GAMES ARE DONE
-  //FIX THIS NEEDS TO BE ADDED
-    //if (millis() - game_timer >= 60000 ){
-    //state = 1;
-    //Serial.println("timeout, back to state 1");
-    //ledcWriteTone(0, 220);
-    //tft.pushImage(0, 0, 640, 480, clockImage);
-    //} else if (button == 1){
+  } else if ((state == 5)){ //GAME WON!
+    hasRung = true;
     state = 0;
     tft.fillScreen(TFT_BLACK);
-    tft.println("Good morning! You have completed the game :)");
+    tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+    tft.setTextSize(2);
+    tft.println("Good morning!");
+    tft.println();
+    tft.println(" You have completed");
+    tft.println(" the game :)");
     mainState = 1;
     Serial.println("finished game, congratulations!");
     delay(5000);
@@ -367,6 +395,7 @@ class gameChooser {
     game_time = (millis() - game_timer)/1000;
     Serial.println(game_time);
     postWinning();
+    setup_clock();
     
     //}
   } else if (state == 3){
@@ -376,12 +405,30 @@ class gameChooser {
     if (mathGameVal != -1){
       state = 5;
     }
-  } else if (state == 6){
+    if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
+          state = 1;
+          alarmRinging();
+    }
+  } else if (state == 7){
+    int mazevar = loopMaze();
+    if (mazevar != -1){
+      state = 5;
+    }
+    if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
+          state = 1;
+          alarmRinging();
+    }
+  
+  }else if (state == 6){
     int cipherGameVal = cipher_loop();
     // Serial.println(cipherGameVal);
     // Serial.println("printing");
     if (cipherGameVal != -1){
       state = 5;
+    }
+    if (millis() - game_timer >= 600000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
+          state = 1;
+          alarmRinging();
     }
   } else if (state == 4){
     int currentJumpGame = playjumpgame();
@@ -390,66 +437,96 @@ class gameChooser {
       state = 5;
       
     }
+    if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
+          state = 1;
+          alarmRinging();
+    }
   }
 }
 };
 gameChooser wg; //wikipedia object
-
+int bv34; //get button value
+  int bv39; //get button value
+  int bv38; //get button value
+  int bv45;
 
 void loop(){
-  float x, y;
+  ledcWrite(pwm_channel, ambientAmt);
+
   get_angle(&x, &y); //get angle values
-  int bv = button34Testing.update(); //get button value
-  int b34C = button34Clock.update();
-  int b34S = button34Settings.update();
-  button39.read(); //get button value
-  int bv8 = button45Testing.update();
-  int b39C = button39Clock.update();
+
+  // button39.read(); //get button value
+  bv34 = button34.update(); //get button value
+  bv39 = button39.update(); //get button value
+  bv38 = button38.update(); //get button value
+  bv45 = button45.update();
+  // int b39C = button39Clock.update();
 
   if (mainState == 0){
-    int loopTemp = loop_login();
-    if (loopTemp != -1) {
+    
+
+    // int loopTemp = loop_login();
+    // if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
-    }
+      get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
+      sprintf(on_leaderboard, "%s", "True"); // reset to True on each login
+
+    //  }
+
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
-    char* time = loop_clock();
+    char* time = loop_clock(bv45, bv39, bv38);
     //if (strcmp(time, "06:48") == 0) {
-    musicIndex = activeAlarm1();
+    musicIndex = activeAlarm1(time);
 
     //DELETE SECOND PART OF IF
-    if ((musicIndex != -1) || (bv8 != 0)){
+    if ((musicIndex != -1 ) && (hasRung == false)){
       Serial.println("ALARM RINGING");
       tft.fillScreen(TFT_BLACK);
-      tft.println("Alarm Ringing");
+      //tft.println("Alarm Ringing");
       setup_car();
       
     mainState = 2;
-    wg.update(x, bv, true); //input: angle and button, output String to display on this timestep
-    // go into settings
-     } else if (b39C != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
-      // button39.button_change_time = millis();     
-      goto_settings();
-      if (!loggedIn){
-        get_alarms_user(); // pull users' alarms from db
-        loggedIn = true;
-      }
-      mainState = 3;
+    wg.update(x, bv34, true); //input: angle and button, output String to display on this timestep
+    } else if ((musicIndex != -1 )){
+      hasRung = false;
     }
-    else if (b34C != 0){ // USER SETTINGS
+    //  else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+    //   // button39.button_change_time = millis();     
+    //   goto_settings();
+    //   if (!loggedIn){
+    //     get_alarms_user(); // pull users' alarms from db
+    //     loggedIn = true;
+    //   }
+    //   mainState = 3;
+    // }
+    // else if (bv34 != 0){ // USER SETTINGS
+    // go into settings
+
+    //  } else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
+    //   // button39.button_change_time = millis();     
+    //   goto_settings();
+    //   if (!loggedIn){
+    //     get_alarms_user(); // pull users' alarms from db
+    //     loggedIn = true;
+    //   }
+    //   mainState = 3;
+    // }
+    if (bv34 != 0){ // USER SETTINGS
+
       mainState = 4; 
     }
   } 
   else if (mainState == 2){ //ALARM ACTIVATED
-    wg.update(x, bv, false); //input: angle and button, output String to display on this timestep
+    wg.update(x, bv34, false); //input: angle and button, output String to display on this timestep
 
 
-  } else if (mainState == 3){ //SETTINGS PAGE
+  } else if (mainState == 5){ //SETTINGS PAGE
     tft.setTextSize(1.5);
     loggedIn = true;
-    int result = handle_settings();
+    int result = handle_settings(bv34, bv39, bv38, bv45);
     if (result == 1) {
       mainState = 1;
       setup_clock();
@@ -460,15 +537,22 @@ void loop(){
       setup_login();
     }
   }
-  else if (mainState == 4){
-    int result = handle_user_settings();
-    if (result == 1){
-      mainState = 0;
+  else if (mainState == 4){    // go into settings
+    int result = handle_user_settings(bv39, bv38);
+
+    if (result == 1) // go to alarm settings
+    {
+      goto_settings();
+      if (!loggedIn){
+        get_alarms_user(); // pull users' alarms from db
+        loggedIn = true;
+      }
+      mainState = 5;
       setup_login();    
     }
-    else if (b34S != 0){
-      mainState = 1;
-      setup_clock();
-    }
+    // else if (bv34 != 0){
+    //   mainState = 1;
+    //   setup_clock();
+    // }
   }
-}   
+  }  

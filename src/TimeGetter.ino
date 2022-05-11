@@ -6,8 +6,8 @@ class TimeGetter {
     char query_string[50] = {0};
     int state;
     uint32_t scroll_timer;
-    const int scroll_threshold = 300;
-    const float angle_threshold = 0.3;
+    const int scroll_threshold = 500;
+    const float angle_threshold = 0.35;
 
   public:
     TimeGetter() {
