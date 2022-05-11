@@ -20,7 +20,7 @@ def alarm_request_handler(request):
                                 "music":{"m0": -1, "m1": -1, "m2": -1, "m3": -1, "m4": -1}}} # "User does not exist or has no alarms set"
 
             times = [i[1] for i in users]
-            music = [j[1] for j in users]
+            music = [j[2] for j in users]
             
             timedict = dict()
             musicdict = dict()
@@ -32,6 +32,6 @@ def alarm_request_handler(request):
                     timedict["a"+ str(i)] = ""
                     musicdict["m"+ str(i)] = -1
             
-        return {"doc": {"alarm_time": timedict, "music": musicdict}} #{'alarm_time': times, 'music': music}
+        return {"doc": {"alarm_time": timedict, "music": musicdict}} 
     else:
       return "invalid HTTP method for this url."

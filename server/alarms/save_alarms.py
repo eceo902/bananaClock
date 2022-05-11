@@ -7,12 +7,20 @@ def request_handler(request):
     if request["method"]=="POST":
         #parse the body of the incoming POST
         try:
-            username = request['form']['user']
-            times = request['form']['alarm_time'][1:-1].replace(' ','').split(',')
-            alarm_music = request['form']['music'][1:-1].split(',')
+            username = request['values']['user']
         except:
-            return "Error with username, alarm time, set state, or music"   
-        
+            return "Error with username"
+  
+        try:
+            times = request['values']['alarm_time'][1:-1].replace(' ','').split(',')
+        except:
+            return "Error with time"
+  
+        try:
+            alarm_music = request['values']['music'][1:-1].split(',')
+        except:
+            return "Error with music"
+  
         try:
             alarms = [t[1:-1] for t in times]
             musics = [int(m) for m in alarm_music]
