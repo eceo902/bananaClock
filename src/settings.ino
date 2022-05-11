@@ -414,7 +414,7 @@ void modify_alarm_2(int alarm_num)
 
       tft.fillScreen(TFT_BLACK);
       tft.setCursor(10, 40);
-      tft.println("Press 45 to confirm song and 39 to switch song");
+      tft.println("Press 39 to confirm song and 45 to switch song");
       tft.println("");
         tft.println("Playing Game of Thrones");
         throne();
@@ -434,7 +434,7 @@ void modify_alarm_2(int alarm_num)
 
       tft.fillScreen(TFT_BLACK);
       tft.setCursor(10, 40);
-      tft.println("Press 45 to confirm song and 39 to switch song");
+      tft.println("Press 39 to confirm song and 45 to switch song");
       tft.println("");
 
       if (musicState == 5){
