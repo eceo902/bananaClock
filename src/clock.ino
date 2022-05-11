@@ -92,6 +92,7 @@ char* loop_clock(int update_45, int update_39, int update_38) {   // this is cal
         military_state = MILITARY;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
         print_time();
+        Serial.println("Switched to standard time");
         tft.setTextSize(1);
         tft.println(weather);
         tft.println(temp);
@@ -102,6 +103,7 @@ char* loop_clock(int update_45, int update_39, int update_38) {   // this is cal
       if (military_input != 0) {
         military_state = STANDARD;
         tft.fillScreen(TFT_BLACK); //need to modify tft so that we get instant feedback on button click
+        Serial.println("Switched to military time");
         print_time();
         tft.setTextSize(1);
         tft.println(weather);

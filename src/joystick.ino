@@ -92,7 +92,7 @@ int loop_joystick() {
   int leftRight = analogRead(2);
   // Serial.println(leftRight);
 
-  int typeInput = button45.update();
+  int typeInput = bv45;
   if (typeInput != 0 && position.y > vertOffset - 5) {    // Weird but we need to check if we are past the vertical offset in this if-statement
     if (position.y < vertOffset + 11 && position.x > qOffset - 3) {
            if (position.x < qOffset + 8) letters[strlen(letters)] = 'Q';
@@ -130,7 +130,7 @@ int loop_joystick() {
     tft.println(letters);
   }
 
-  int deleteInput = button39.update();
+  int deleteInput = bv39;
   if (deleteInput != 0 && strlen(letters) > 0) {
     letters[strlen(letters) - 1] = '\0';
     tft.setCursor(0, 90, 1);
@@ -169,7 +169,7 @@ int loop_joystick() {
   while (millis() - primary_timer < DT); //wait for primary timer to increment
   primary_timer = millis();
   
-  int submitInput = button38.update();
+  int submitInput = bv38;
   if (submitInput != 0) {
     return 1;
   }

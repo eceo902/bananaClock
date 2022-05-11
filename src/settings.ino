@@ -369,7 +369,7 @@ void modify_alarm_2(int alarm_num)
   {
     float x, y;
     get_angle(&x, &y); //get angle values
-    int bv = button39.update(); //get button value
+    int bv = bv39; //get button value
     int res = tg.update(y, bv, 23); //input: angle and button, output String to display on 
     if (res != -1)  {
       if (res == 0){
@@ -382,11 +382,11 @@ void modify_alarm_2(int alarm_num)
       alarm_state = ADD_MIN;
     }
   }
-  if (alarm_state == ADD_MIN)
+  else if (alarm_state == ADD_MIN)
   {
     float x, y;
     get_angle(&x, &y); //get angle values
-    int bv = button39.update(); //get button value
+    int bv = bv39; //get button value
     int res = tg.update(y, bv, 59); //input: angle and button, output String to display on 
     if (res != -1)  {
       if (res == 0){
