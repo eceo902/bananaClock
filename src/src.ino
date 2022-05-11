@@ -10,10 +10,6 @@
 WiFiClientSecure client; //global WiFiClient Secure object
 WiFiClient client2; //global WiFiClient Secure object
 #include "images.h"
-//CURRENT BUGS
-
-//setting a time adds a +1
-//if you finish the game before 1 minute, it goes right back to ringing, need to use HasRung
 
 int musicIndex = -1;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
@@ -465,15 +461,14 @@ void loop(){
   if (mainState == 0){
     
 
-    // int loopTemp = loop_login();
-    // if (loopTemp != -1) {
+    int loopTemp = loop_login();
+    if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
       get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
       sprintf(on_leaderboard, "%s", "True"); // reset to True on each login
-
-    //  }
+     }
 
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
@@ -493,27 +488,6 @@ void loop(){
     } else if ((musicIndex != -1 )){
       hasRung = false;
     }
-    //  else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
-    //   // button39.button_change_time = millis();     
-    //   goto_settings();
-    //   if (!loggedIn){
-    //     get_alarms_user(); // pull users' alarms from db
-    //     loggedIn = true;
-    //   }
-    //   mainState = 3;
-    // }
-    // else if (bv34 != 0){ // USER SETTINGS
-    // go into settings
-
-    //  } else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
-    //   // button39.button_change_time = millis();     
-    //   goto_settings();
-    //   if (!loggedIn){
-    //     get_alarms_user(); // pull users' alarms from db
-    //     loggedIn = true;
-    //   }
-    //   mainState = 3;
-    // }
     if (bv34 != 0){ // USER SETTINGS
 
       mainState = 4; 
@@ -550,9 +524,5 @@ void loop(){
       mainState = 5;
       setup_login();    
     }
-    // else if (bv34 != 0){
-    //   mainState = 1;
-    //   setup_clock();
-    // }
   }
   }  
