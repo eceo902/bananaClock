@@ -437,6 +437,10 @@ void modify_alarm_2(int alarm_num)
       tft.println("Press 45 to confirm song and 39 to switch song");
       tft.println("");
 
+      if (musicState == 5){
+      musicState = 0;
+    }
+
       if (musicState == 0){
         tft.println("Playing Game of Thrones");
         throne();
@@ -449,16 +453,12 @@ void modify_alarm_2(int alarm_num)
   } else if (musicState == 4){
         tft.println("Playing Star Wars");
         starWars();
-  } if (musicState == 3){
+  } else if (musicState == 3){
     tft.println("Playing Pink Panther");
     pinkPanther();
-  } else if (musicState == 5){
-      musicState = 0;
-    }
+  } 
     delay(500);
   }
-
-  
 
   if (musicState == 0){
     throne();
