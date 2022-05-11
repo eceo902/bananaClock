@@ -31,7 +31,7 @@ float ambientAmt = 0.0;
 char shareData[] = "True";
 
 // brightness variables
-const int LCD_PIN = 21;         //pin we use for PWM on LCD
+const int LCD_PIN = 37;         //pin we use for PWM on LCD
 const int pwm_channel = 2; 
 
 
@@ -465,15 +465,15 @@ void loop(){
   if (mainState == 0){
     
 
-    int loopTemp = loop_login();
-    if (loopTemp != -1) {
+    // int loopTemp = loop_login();
+    // if (loopTemp != -1) {
       mainState = 1;
       loggedIn = true;
       setup_clock();
       get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
       sprintf(on_leaderboard, "%s", "True"); // reset to True on each login
 
-     }
+    //  }
 
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
