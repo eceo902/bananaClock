@@ -517,12 +517,12 @@ void loop(){
     if (result == 1) // go to alarm settings
     {
       goto_settings();
-      if (!loggedIn){
-        get_alarms_user(); // pull users' alarms from db
-        loggedIn = true;
-      }
+      // if (!loggedIn){ 
+      //   get_alarms_user(); // pull users' alarms from db
+      //   loggedIn = true;
+      // }
       mainState = 5;
-      setup_login();    
+      // setup_login();    
     }
   }
   }  
