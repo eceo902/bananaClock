@@ -278,7 +278,7 @@ class gameChooser {
             tft.println("Playing the Math Game!");
             math_setup();
             state = 3;
-            sprintf(game_name, "math");
+        
           } else if(game_index == 0){
             tft.println("Playing the Jumping Game!");
             state = 4;
@@ -293,7 +293,6 @@ class gameChooser {
             tft.println("Playing Cipher!");
             cipher_setup();
             state = 6;
-            sprintf(game_name, "cipher");
           }
           game_index=0;
           scroll_timer=millis();
@@ -427,7 +426,7 @@ class gameChooser {
     if (cipherGameVal != -1){
       state = 5;
     }
-    if (millis() - game_timer >= 60000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
+    if (millis() - game_timer >= 600000 ){ //IF THEY TAKE TOO LONG TO DECIDE, ALARM RINGS AGAIN
           state = 1;
           alarmRinging();
     }
