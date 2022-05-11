@@ -480,7 +480,7 @@ void loop(){
     musicIndex = activeAlarm1(time);
 
     //DELETE SECOND PART OF IF
-    if ((musicIndex != -1 ) && (hasRung == false)){
+    if ((musicIndex == -1 ) && (hasRung == false)){
       Serial.println("ALARM RINGING");
       tft.fillScreen(TFT_BLACK);
       //tft.println("Alarm Ringing");
