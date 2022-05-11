@@ -277,18 +277,22 @@ class gameChooser {
             tft.println("Playing the Math Game!");
             math_setup();
             state = 3;
+            sprintf(game_name, "math");
           } else if(game_index == 0){
             tft.println("Playing the Jumping Game!");
             state = 4;
-            jump_setup();            
+            jump_setup();      
+            sprintf(game_name, "jumping");      
           } else if (game_index == 1){
             tft.println("Playing the Maze Game!");
             state = 7;
             setupMaze();
+            sprintf(game_name, "maze");
           } else {
             tft.println("Playing Cipher!");
             cipher_setup();
             state = 6;
+            sprintf(game_name, "cipher");
           }
           game_index=0;
           scroll_timer=millis();
