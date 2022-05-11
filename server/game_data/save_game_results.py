@@ -17,13 +17,17 @@ def request_handler(request):
         try:
             gamelength = request['form']['length']
         except:
-            return "Error with game length"   
+            return "Error with game length"  
+        try:
+            on_board = request['form']['on_leaderboard']
+        except:
+            return "Error with leaderboard privacy"
         
         with sqlite3.connect(game_db) as c:
             c.cursor()  # move cursor into database (allows us to execute commands)
-            c.execute("""CREATE TABLE IF NOT EXISTS all_game_data (user text, date Datetime, game_name text, length float);""")
+            c.execute("""CREATE TABLE IF NOT EXISTS all_game_data (user text, date Datetime, game_name text, length float, on_leaderboard text);""")
             # some other query(ies) about inserting data
-            c.execute('''INSERT into all_game_data VALUES (?,?,?,?);''',(username, datetime.datetime.now(), gamename, gamelength))
+            c.execute('''INSERT into all_game_data VALUES (?,?,?,?,?);''',(username, datetime.datetime.now(), gamename, gamelength, on_board))
 
         return "Data POSTED successfully"
     else:
