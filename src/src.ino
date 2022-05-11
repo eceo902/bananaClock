@@ -162,8 +162,9 @@ void setup(){
 
   pinMode(14, OUTPUT);
 
-  ledcSetup(0, 200, 12);//12 bits of PWM precision
-  ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
+  // ledcSetup(0, 200, 12);//12 bits of PWM precision
+  ledcSetup(pwm_channel, 200, 12);//12 bits of PWM precision
+  // ledcWrite(0, 0); //0 is a 0% duty cycle for the NFET
   ledcAttachPin(14, 0);
 
 
@@ -445,7 +446,7 @@ void loop(){
       loggedIn = true;
       setup_clock();
       get_alarms_user(); // pull users' alarms at beginning of program, MUST run after username set
-
+      sprintf(on_leaderboard, "%s", "True"); // reset to True on each login
   //   }
 
   } else if (mainState == 1){ //MAIN TIME DISPLAYED PAGE
