@@ -378,7 +378,7 @@ class gameChooser {
 
     }
   } else if ((state == 5)){ //GAME WON!
-   
+    hasrung = true;
     state = 0;
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
@@ -479,7 +479,7 @@ void loop(){
     musicIndex = activeAlarm1();
 
     //DELETE SECOND PART OF IF
-    if (musicIndex != -1){
+    if ((musicIndex != -1 ) && (hasRung == false)){
       Serial.println("ALARM RINGING");
       tft.fillScreen(TFT_BLACK);
       //tft.println("Alarm Ringing");
@@ -487,7 +487,9 @@ void loop(){
       
     mainState = 2;
     wg.update(x, bv34, true); //input: angle and button, output String to display on this timestep
-    } 
+    } else if ((musicIndex != -1 )){
+      hasRung = false;
+    }
     //  else if (bv39 != 0){//(button39.button_pressed && millis() - button39.button_change_time >= 100){ // check been long enough since update
     //   // button39.button_change_time = millis();     
     //   goto_settings();
