@@ -69,6 +69,7 @@ int cipher_loop()
 		if (cipherbutton1_click)
 		{
 			updateCipherDifficulty();
+			sprintf(game_name, enum_str[math_difficulty]);
 		}
 		break;
 	case (CIPHERSTART):

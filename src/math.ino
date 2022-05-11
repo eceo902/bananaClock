@@ -89,6 +89,7 @@ int math_loop()
 		if (mathbutton1_click)
 		{
 			updateMathDifficulty();
+			sprintf(game_name, math_string[math_difficulty]);
 		}
 		break;
 	case (MATHSTART):
