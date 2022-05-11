@@ -46,7 +46,7 @@ char response_buffer[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
 char response[1000];		   // char array buffer to hold HTTP request
 char letters[200];  // char array for keyboard
 char prompt[200];
-char username[200] = "karenTest";
+char username[200] = "";
 float game_time = 23;
 char game_name[100] = "math";
 char on_leaderboard[10] = "True"; // TODO: set based on log-in by Tues 
@@ -56,7 +56,7 @@ const int IN_CLOCK = 0;
 const int IN_SETTINGS = 2;
 bool loggedIn;
 
-char network[] = "MIT GUEST";
+char network[] = "MIT";
 char password[] = "";
 
 Button button45(45);
